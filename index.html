@@ -1,43 +1,119 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-	<title>full screen iframe</title>
-	<style type="text/css">
-		html {
-			overflow: auto;
-		}
-		
-		html,
-		body,
-		div,
-		iframe {
-			margin: 0px;
-			padding: 0px;
-			height: 100%;
-			border: none;
-		}
-		
-		iframe {
-			display: block;
-			width: 100%;
-			border: none;
-			overflow-y: auto;
-			overflow-x: hidden;
-		}
-	</style>
+  <title>Bootstrap 5 Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <style>
+    .body{
+    font-family: "Poppins";
+    }
+  	.card:hover{
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .card {
+    border: 0;
+    }
+    .card-title{
+    font-size:;
+    font-weight: 
+    }
+    .card-text{
+    color:#7F7F7F;
+    }
+    .btn{
+  display:;
+  border-radius: 4px;
+  background-color: #ffffff;
+  border: none;
+  color: blue;
+  text-align: left;
+  font-size:;
+  padding:;
+  width: ;
+  transition:;
+  cursor: pointer;
+  margin:;
+  }
+  .button{
+  background-color: #0066C8;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px 8px 16px;
+  border-radius: 50px
+  }
+  .button:hover{
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+  </style>
+  
 </head>
+<body class="body">
 
-<body>
-	<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/proto/GTu1VqhGHGaD3nJYIC49pq/Portfolio-Website?node-id=304-810&t=8ZvDQCizCFyWTmtO-0&scaling=scale-down-width&content-scaling=fixed&page-id=298%3A392></iframe>
-			frameborder="0"
-			marginheight="0"
-			marginwidth="0"
-			width="100%"
-			height="100%"
-			scrolling="auto">
-</iframe>
+<div class="container mt-5">
+
+<div class="container-fluid
+text-black text-center">
+
+
+
+  <h4>Amaan Baig</h4>
+  <br>
+  <p>&#128075; Hi there! My name is Amaan Baig and I am a Product Designer based in 📍Bangalore, India with 💼 4+ years of experience and previously worked with <img src="cinqueterre.jpg" style="height:24px"></p> 
+</div>
+
+<br>
+
+<div class="container mt-5">
+  <div class="row">
+  
+<!--<div class="row row-cols-1 row-cols-md-2 g-4">-->
+
+  <div class="col-sm-4">
+    <div class="card">
+
+      <div class="card-body">
+<div>      <img src="cinqueterre.jpg" class="card-img-top"></div><br>
+        <h5 class="card-title">Master Fee Template</h5>
+        <p class="card-text">SaaS Product Design</p>
+        <a href="#" class="card-link">View Case Study</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+      <div>      <img src="cinqueterre.jpg" class="card-img-top"></div><br>
+        <h5 class="card-title">Smart Food App</h5>
+        <p class="card-text">Product Design</p><a href="#" class="card-link">View Case Study</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+      <div>      <img src="cinqueterre.jpg" class="card-img-top"></div><br>
+        <h5 class="card-title">K8 Resources</h5>
+        <p class="card-text">Interaction Design</p><a href="#" class="card-link">View Case Study</a>
+      </div>
+    </div>
+  </div>
+</div>  
+
+<div class="container-fluid p-5  text-black text-center">
+<div>Connect on <button class="button"><a herf="https://www.google.com/">Linkedin</a></button> @Amaan Baig.</div><br>
+<p><small class="text-muted" style="color:#7F7F7F">all rights reserved @iamamaanbaig.com</small></p>
+</div>
+
+</div>
 
 </body>
-
 </html>
