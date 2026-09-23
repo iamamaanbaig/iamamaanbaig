@@ -158,10 +158,23 @@
       perspective: 900px; transform-style: preserve-3d;
     }
     .orbit > * { grid-area: 1 / 1; }
+    /* .tilt holds the ring's angle and a gentle float; .ring spins at a constant speed */
+    .tilt, .ring { display: block; position: relative; width: var(--card); height: var(--card); transform-style: preserve-3d; }
+    .tilt {
+      transform: rotateZ(-35deg) rotateX(-28deg);
+      animation: sway 3.5s ease-in-out infinite alternate;
+    }
     .ring {
-      position: relative; width: var(--card); height: var(--card);
-      transform-style: preserve-3d;
-      transform: translateY(var(--y, 0px)) rotateZ(var(--tz, -35deg)) rotateX(-28deg) rotateY(var(--a, 0deg));
+      transform: rotateY(22.5deg);
+      animation: spin 24s linear infinite;
+    }
+    @keyframes sway {
+      from { transform: translateY(1.5px) rotateZ(-36deg) rotateX(-28deg); }
+      to   { transform: translateY(-1.5px) rotateZ(-34deg) rotateX(-28deg); }
+    }
+    @keyframes spin {
+      from { transform: rotateY(22.5deg); }
+      to   { transform: rotateY(-337.5deg); }
     }
     .tile, .slice { position: absolute; transform-style: preserve-3d; }
     .tile { inset: 0; }
@@ -170,16 +183,17 @@
     .slice i {
       position: absolute; inset: 0;
       background:
-        linear-gradient(rgba(10, 10, 10, var(--dim, 0)), rgba(10, 10, 10, var(--dim, 0))),
+        linear-gradient(rgba(10, 10, 10, var(--depth, 0)), rgba(10, 10, 10, var(--depth, 0))),
         linear-gradient(rgba(0, 0, 0, var(--shade, 0)), rgba(0, 0, 0, var(--shade, 0))),
         var(--img) var(--bx) 0 / var(--card) 100% no-repeat,
         var(--fill);
       -webkit-mask: var(--corner) var(--bx) 0 / var(--card) 100% no-repeat;
               mask: var(--corner) var(--bx) 0 / var(--card) 100% no-repeat;
       backface-visibility: hidden; -webkit-backface-visibility: hidden;
-      filter: var(--f, none); /* cards stay opaque; they fade by darkening, so overlapping slices never show seams */
     }
-    .slice i + i { transform: rotateY(180deg); --bx: var(--bx-back); } /* inner side of the card */
+    /* Inner side of a card: only ever seen on the far side of the ring, so it is
+       always dimmed and softly blurred. Darkening (not opacity) keeps slice overlaps seamless. */
+    .slice i + i { transform: rotateY(180deg); --bx: var(--bx-back); --depth: .55; filter: blur(1px); }
 
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -326,7 +340,7 @@
           <!-- 8 curved cards repeat 4 images. Add them here, e.g.
                style="--img-1:url('claude.png'); --img-2:url('chatgpt.png'); --img-3:url('notebooklm.png'); --img-4:url('figma.png')" -->
           <span class="orbit" id="orbit" aria-hidden="true">
-            <span class="ring" id="ring"></span> <!-- cards are built by the script below -->
+            <span class="tilt"><span class="ring" id="ring"></span></span> <!-- cards are built by the script below -->
             <svg class="spark" viewBox="0 0 100 100">
               <defs>
                 <!-- green liquid inside the glass -->
@@ -491,13 +505,11 @@
         hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
       });
 
-      /* Tool cards orbiting the AI spark:
-         8 curved cards; glide 1/8 turn, rest, repeat; the ring also floats gently */
+      /* Tool cards orbiting the AI spark: builds 8 curved cards; the spin itself is a CSS animation */
       var orbit = document.getElementById('orbit');
       var ring = document.getElementById('ring');
       var CARDS = 8, SLICES = 8, GAP = 360 / CARDS;
       var CORNER = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" preserveAspectRatio="none"><rect width="40" height="40" rx="10"/></svg>') + '")';
-      var tiles = [];
       function buildOrbit() {
         var cs = getComputedStyle(orbit);
         var r = parseFloat(cs.getPropertyValue('--r'));
@@ -520,48 +532,11 @@
           html += '</span>';
         }
         ring.innerHTML = html;
-        tiles = ring.querySelectorAll('.tile');
       }
 
-      var MOVE = 1100, REST = 1700, CYCLE = MOVE + REST, OFFSET = GAP / 2;
-      var elapsed = 0, last = 0, visible = true, rafId = 0;
-      function easeInOut(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
-      function paintOrbit(t) {
-        var step = Math.floor(t / CYCLE);
-        var p = easeInOut(Math.min((t % CYCLE) / MOVE, 1));
-        var angle = OFFSET - (step + p) * GAP;
-        ring.style.setProperty('--a', angle + 'deg');
-        ring.style.setProperty('--y', (Math.sin(t / 900) * 3).toFixed(2) + 'px');
-        ring.style.setProperty('--tz', (-35 + Math.sin(t / 1400) * 2).toFixed(2) + 'deg');
-        tiles.forEach(function (tile, i) {
-          var z = Math.cos((angle + i * GAP) * Math.PI / 180); // 1 = facing us, -1 = behind the spark
-          tile.style.setProperty('--dim', (0.65 * (1 - z) / 2).toFixed(3));
-          // only blur cards behind the spark; any filter on a front card makes it render soft
-          tile.style.setProperty('--f', z < -0.05 ? 'blur(' + (-z * 1.4).toFixed(2) + 'px)' : 'none');
-        });
-      }
-      function spin(now) {
-        if (last) elapsed += Math.min(now - last, 50);
-        last = now;
-        paintOrbit(elapsed);
-        rafId = visible ? requestAnimationFrame(spin) : 0;
-      }
       buildOrbit();
-      paintOrbit(0);
       var phone = window.matchMedia('(max-width: 640px)');
-      (phone.addEventListener ? phone.addEventListener.bind(phone, 'change') : phone.addListener.bind(phone))(function () {
-        buildOrbit(); paintOrbit(elapsed);
-      });
-      if (!reduce) {
-        if ('IntersectionObserver' in window) {
-          new IntersectionObserver(function (entries) {
-            visible = entries[0].isIntersecting;
-            if (visible && !rafId) { last = 0; rafId = requestAnimationFrame(spin); }
-          }).observe(orbit);
-        } else {
-          rafId = requestAnimationFrame(spin);
-        }
-      }
+      (phone.addEventListener ? phone.addEventListener.bind(phone, 'change') : phone.addListener.bind(phone))(buildOrbit);
 
       /* "Complicated software": pixel scramble that resolves into the words */
       var target = document.getElementById('complex');
