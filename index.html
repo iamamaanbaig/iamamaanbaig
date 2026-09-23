@@ -131,27 +131,24 @@
       gap: 14px 22px; margin-top: clamp(28px, 3.4vw, 44px);
       font-size: clamp(16px, 1.6vw, 22px); font-weight: 400;
     }
-    .switch {
-      position: relative; flex: none;
-      width: 88px; height: 48px; padding: 0; border: 0; border-radius: 999px;
-      background: var(--text); cursor: pointer;
-      transition: background .35s var(--ease);
+    /* Pill-shaped image slot: drop an <img> inside .photo */
+    .photo {
+      position: relative; flex: none; overflow: hidden;
+      width: 112px; height: 68px; border-radius: 999px;
+      background: var(--text);
     }
-    .switch::after {
-      content: ""; position: absolute; top: 6px; left: 6px;
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--bg);
-      transition: transform .45s var(--ease);
-    }
-    .switch[aria-checked="true"] { background: var(--green); }
-    .switch[aria-checked="true"]::after { transform: translateX(40px); }
-    .phrase { transition: color .35s var(--ease), opacity .35s var(--ease); }
-    .phrase.off { color: var(--dim); }
+    .photo img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* 3D glass spark */
     .spark {
-      width: 28px; height: 28px; flex: none; color: var(--text);
-      transition: transform .6s var(--ease), color .35s var(--ease);
+      flex: none; width: 60px; height: 60px; overflow: visible;
+      filter: drop-shadow(0 6px 14px rgba(120, 230, 70, .35));
+      animation: float 5s ease-in-out infinite;
     }
-    .ai-on .spark { transform: rotate(90deg) scale(1.1); color: var(--green); }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(-4px) rotate(8deg); }
+    }
 
     .meta {
       position: absolute; left: var(--gutter); right: var(--gutter); bottom: 32px;
@@ -213,14 +210,6 @@
     .card .num { font-family: var(--pixel); color: var(--green); font-size: 15px; margin-right: 12px; }
     .card .kind { color: var(--muted); font-size: 14px; white-space: nowrap; }
 
-    /* Approach */
-    .approach { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
-    .step { background: var(--bg); padding: clamp(24px, 3vw, 40px); display: flex; flex-direction: column; gap: 14px; min-height: 280px; transition: background .3s; }
-    .step:hover { background: var(--surface); }
-    .step .eyebrow { color: var(--green); }
-    .step h3 { margin: 40px 0 0; font-size: clamp(22px, 2.2vw, 30px); font-weight: 400; }
-    .step p { margin: 0; color: var(--muted); }
-
     /* Contact */
     .contact { text-align: center; border-top: 1px solid var(--line); }
     .contact .big {
@@ -244,9 +233,6 @@
     /* ---------- Responsive ---------- */
     @media (max-width: 860px) {
       .work { grid-template-columns: 1fr; }
-      .approach { grid-template-columns: 1fr; }
-      .step { min-height: 0; }
-      .step h3 { margin-top: 16px; }
       .card .cta { opacity: 1; transform: none; }
     }
     @media (max-width: 640px) {
@@ -257,11 +243,9 @@
       .l2 .word { display: block; }
       .meta { bottom: 20px; justify-content: center; }
       .meta .loc, .meta .scroll-cue { display: none; }
-      .switch { width: 72px; height: 40px; }
-      .switch::after { width: 30px; height: 30px; top: 5px; left: 5px; }
-      .switch[aria-checked="true"]::after { transform: translateX(32px); }
+      .photo { width: 92px; height: 56px; }
+      .spark { width: 48px; height: 48px; }
       .tagline { flex-direction: column; gap: 14px; }
-      .tagline .spark { display: none; }
       .card .info { flex-direction: column; gap: 4px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -298,12 +282,63 @@
         </h1>
 
         <div class="tagline reveal" style="--d:3" id="tagline">
-          <button class="switch" id="mode" role="switch" aria-checked="false" aria-label="Switch between experience and AI"></button>
-          <span class="phrase" data-side="exp">Experience for judgment.</span>
-          <svg class="spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0z"/>
+          <span class="photo">
+            <!-- Add your image here, e.g. <img src="me.jpg" alt="Amaan Baig"> -->
+          </span>
+          <span>Experience for judgment.</span>
+          <svg class="spark" viewBox="0 0 100 100" aria-hidden="true">
+            <defs>
+              <!-- green liquid inside the glass -->
+              <radialGradient id="sparkCore" cx="56%" cy="60%" r="58%">
+                <stop offset="0" stop-color="#F2FFDC"/>
+                <stop offset=".22" stop-color="#C4FB8C"/>
+                <stop offset=".55" stop-color="#6FD83A"/>
+                <stop offset="1" stop-color="#1B5E12"/>
+              </radialGradient>
+              <!-- shade on the lower-right faces for volume -->
+              <linearGradient id="sparkShade" x1="20%" y1="20%" x2="85%" y2="90%">
+                <stop offset=".45" stop-color="#0B2A06" stop-opacity="0"/>
+                <stop offset="1" stop-color="#0B2A06" stop-opacity=".55"/>
+              </linearGradient>
+              <!-- glass sheen on the upper-left faces -->
+              <linearGradient id="sparkSheen" x1="10%" y1="5%" x2="60%" y2="60%">
+                <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
+                <stop offset=".4" stop-color="#fff" stop-opacity=".22"/>
+                <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+              </linearGradient>
+              <!-- rim light -->
+              <linearGradient id="sparkRim" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+                <stop offset=".5" stop-color="#E8FFD0" stop-opacity=".25"/>
+                <stop offset="1" stop-color="#C8FF96" stop-opacity=".8"/>
+              </linearGradient>
+              <radialGradient id="sparkGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#FAFFF0" stop-opacity=".95"/>
+                <stop offset="1" stop-color="#B9FA7C" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="sparkSoft" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2.2"/>
+              </filter>
+              <clipPath id="sparkClip"><path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z"/></clipPath>
+            </defs>
+            <g clip-path="url(#sparkClip)">
+              <rect width="100" height="100" fill="url(#sparkCore)"/>
+              <rect width="100" height="100" fill="url(#sparkShade)"/>
+              <!-- refracted glow in the middle -->
+              <circle cx="52" cy="54" r="17" fill="url(#sparkGlow)" filter="url(#sparkSoft)"/>
+              <!-- upper-left facets catch the light -->
+              <path d="M50 3C55 33 67 45 97 50H50Z M3 50C33 45 45 33 50 3V50Z" fill="url(#sparkSheen)"/>
+              <!-- darker inner edge -->
+              <path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z" fill="none" stroke="#0E3A08" stroke-opacity=".45" stroke-width="5" filter="url(#sparkSoft)"/>
+            </g>
+            <path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z" fill="none" stroke="url(#sparkRim)" stroke-width="1.2"/>
+            <!-- specular highlights -->
+            <path d="M47.5 12C48.5 24 49 31 45 39" stroke="#fff" stroke-width="3" stroke-opacity=".55" stroke-linecap="round" fill="none" opacity=".9" filter="url(#sparkSoft)"/>
+            <ellipse cx="46.5" cy="22" rx="1.1" ry="4.5" fill="#fff" opacity=".95" transform="rotate(-6 46.5 22)"/>
+            <ellipse cx="24" cy="48.2" rx="9" ry="1.1" fill="#fff" opacity=".55"/>
+            <circle cx="62" cy="62" r="1.6" fill="#fff" opacity=".5"/>
           </svg>
-          <span class="phrase off" data-side="ai">AI for speed.</span>
+          <span>AI for speed.</span>
         </div>
       </div>
 
@@ -369,34 +404,6 @@
       </div>
     </section>
 
-    <!-- ================= APPROACH ================= -->
-    <section class="block" id="approach" aria-labelledby="approach-title" style="padding-top:0">
-      <div class="sec-head reveal">
-        <div>
-          <span class="eyebrow">How I work</span>
-          <h2 class="sec-title" id="approach-title">From tangled to <em>obvious.</em></h2>
-        </div>
-      </div>
-
-      <div class="approach reveal">
-        <article class="step">
-          <span class="eyebrow">01 / Untangle</span>
-          <h3>Find the real problem</h3>
-          <p>Map the workflows, rules and edge cases that make enterprise software feel heavy, then decide what actually matters.</p>
-        </article>
-        <article class="step">
-          <span class="eyebrow">02 / Judge</span>
-          <h3>Experience for judgment</h3>
-          <p>Years of shipping SaaS tell me which trade-offs users will feel and which ones they won't. Clarity wins over cleverness.</p>
-        </article>
-        <article class="step">
-          <span class="eyebrow">03 / Accelerate</span>
-          <h3>AI for speed</h3>
-          <p>I use AI to explore, prototype and test faster, so there's more time to refine what ships.</p>
-        </article>
-      </div>
-    </section>
-
     <!-- ================= CONTACT ================= -->
     <section class="block contact" id="contact" aria-labelledby="contact-title">
       <span class="eyebrow reveal">Got something complicated?</span>
@@ -441,26 +448,6 @@
         hero.style.setProperty('--mx', (e.clientX - r.left) + 'px');
         hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
       });
-
-      /* Experience / AI switch */
-      var sw = document.getElementById('mode');
-      var tagline = document.getElementById('tagline');
-      var exp = tagline.querySelector('[data-side="exp"]');
-      var ai = tagline.querySelector('[data-side="ai"]');
-      var auto;
-      function setMode(on) {
-        sw.setAttribute('aria-checked', String(on));
-        tagline.classList.toggle('ai-on', on);
-        exp.classList.toggle('off', on);
-        ai.classList.toggle('off', !on);
-      }
-      sw.addEventListener('click', function () {
-        clearInterval(auto);
-        setMode(sw.getAttribute('aria-checked') !== 'true');
-      });
-      if (!reduce) {
-        auto = setInterval(function () { setMode(sw.getAttribute('aria-checked') !== 'true'); }, 3200);
-      }
 
       /* "Complicated software": pixel scramble that resolves into the words */
       var target = document.getElementById('complex');
