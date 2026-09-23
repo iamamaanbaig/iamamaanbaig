@@ -145,6 +145,38 @@
       filter: drop-shadow(0 6px 14px rgba(120, 230, 70, .35));
       animation: float 5s ease-in-out infinite;
     }
+    /* Tool cards orbiting the spark */
+    .orbit {
+      --r: 84px; --step: 38.2deg; /* step = (48px card + 8px gap) / r, in degrees */
+      position: relative; flex: none;
+      width: calc(var(--r) * 2 + 48px); height: 132px;
+      display: grid; place-items: center;
+      perspective: 900px; transform-style: preserve-3d;
+    }
+    .orbit > * { grid-area: 1 / 1; }
+    .ring {
+      position: relative; width: 48px; height: 48px;
+      transform-style: preserve-3d;
+      transform: rotateZ(-10deg) rotateX(-18deg) rotateY(var(--a, 0deg));
+    }
+    .tile {
+      position: absolute; inset: 0; transform-style: preserve-3d;
+      transform: rotateY(calc((var(--i) - 1.5) * var(--step))) translateZ(var(--r));
+    }
+    .face {
+      position: absolute; inset: 0; border-radius: 12px;
+      display: grid; place-items: center;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      outline: 1px solid transparent; /* smoother edges while rotated in 3D */
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -2px 4px rgba(0, 0, 0, .22);
+    }
+    .face.back { transform: rotateY(180deg); }
+    .face svg { width: 28px; height: 28px; }
+    .t-claude { background: #D97757; }
+    .t-gpt { background: #10A37F; }
+    .t-nlm { background: #000; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16), inset 0 1px 0 rgba(255, 255, 255, .25); }
+    .t-figma { background: #fff; }
+
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(0deg); }
       50%      { transform: translateY(-4px) rotate(8deg); }
@@ -245,6 +277,7 @@
       .meta .loc, .meta .scroll-cue { display: none; }
       .photo { width: 92px; height: 56px; }
       .spark { width: 48px; height: 48px; }
+      .orbit { --r: 72px; --step: 44.56deg; height: 120px; }
       .tagline { flex-direction: column; gap: 14px; }
       .card .info { flex-direction: column; gap: 4px; }
     }
@@ -286,58 +319,70 @@
             <!-- Add your image here, e.g. <img src="me.jpg" alt="Amaan Baig"> -->
           </span>
           <span>Experience for judgment.</span>
-          <svg class="spark" viewBox="0 0 100 100" aria-hidden="true">
-            <defs>
-              <!-- green liquid inside the glass -->
-              <radialGradient id="sparkCore" cx="56%" cy="60%" r="58%">
-                <stop offset="0" stop-color="#F2FFDC"/>
-                <stop offset=".22" stop-color="#C4FB8C"/>
-                <stop offset=".55" stop-color="#6FD83A"/>
-                <stop offset="1" stop-color="#1B5E12"/>
-              </radialGradient>
-              <!-- shade on the lower-right faces for volume -->
-              <linearGradient id="sparkShade" x1="20%" y1="20%" x2="85%" y2="90%">
-                <stop offset=".45" stop-color="#0B2A06" stop-opacity="0"/>
-                <stop offset="1" stop-color="#0B2A06" stop-opacity=".55"/>
-              </linearGradient>
-              <!-- glass sheen on the upper-left faces -->
-              <linearGradient id="sparkSheen" x1="10%" y1="5%" x2="60%" y2="60%">
-                <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
-                <stop offset=".4" stop-color="#fff" stop-opacity=".22"/>
-                <stop offset="1" stop-color="#fff" stop-opacity="0"/>
-              </linearGradient>
-              <!-- rim light -->
-              <linearGradient id="sparkRim" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#fff" stop-opacity="1"/>
-                <stop offset=".5" stop-color="#E8FFD0" stop-opacity=".25"/>
-                <stop offset="1" stop-color="#C8FF96" stop-opacity=".8"/>
-              </linearGradient>
-              <radialGradient id="sparkGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0" stop-color="#FAFFF0" stop-opacity=".95"/>
-                <stop offset="1" stop-color="#B9FA7C" stop-opacity="0"/>
-              </radialGradient>
-              <filter id="sparkSoft" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="2.2"/>
-              </filter>
-              <clipPath id="sparkClip"><path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z"/></clipPath>
-            </defs>
-            <g clip-path="url(#sparkClip)">
-              <rect width="100" height="100" fill="url(#sparkCore)"/>
-              <rect width="100" height="100" fill="url(#sparkShade)"/>
-              <!-- refracted glow in the middle -->
-              <circle cx="52" cy="54" r="17" fill="url(#sparkGlow)" filter="url(#sparkSoft)"/>
-              <!-- upper-left facets catch the light -->
-              <path d="M50 3C55 33 67 45 97 50H50Z M3 50C33 45 45 33 50 3V50Z" fill="url(#sparkSheen)"/>
-              <!-- darker inner edge -->
-              <path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z" fill="none" stroke="#0E3A08" stroke-opacity=".45" stroke-width="5" filter="url(#sparkSoft)"/>
-            </g>
-            <path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z" fill="none" stroke="url(#sparkRim)" stroke-width="1.2"/>
-            <!-- specular highlights -->
-            <path d="M47.5 12C48.5 24 49 31 45 39" stroke="#fff" stroke-width="3" stroke-opacity=".55" stroke-linecap="round" fill="none" opacity=".9" filter="url(#sparkSoft)"/>
-            <ellipse cx="46.5" cy="22" rx="1.1" ry="4.5" fill="#fff" opacity=".95" transform="rotate(-6 46.5 22)"/>
-            <ellipse cx="24" cy="48.2" rx="9" ry="1.1" fill="#fff" opacity=".55"/>
-            <circle cx="62" cy="62" r="1.6" fill="#fff" opacity=".5"/>
-          </svg>
+          <span class="orbit" id="orbit" aria-hidden="true">
+            <span class="ring" id="ring">
+              <!-- Claude -->
+              <span class="tile" style="--i:0"><span class="face t-claude"><svg viewBox="0 0 24 24"><path fill="#FAF9F5" d="M11.87 13.90L22.31 13.67A0.95 0.95 0 0 1 22.44 11.78L12.13 10.10ZM10.94 13.58L18.43 17.48A0.95 0.95 0 0 1 19.50 15.91L13.06 10.42ZM10.29 12.83L15.44 21.22A0.95 0.95 0 0 1 17.15 20.39L13.71 11.17ZM10.10 11.87L10.49 19.91A0.95 0.95 0 0 1 12.39 20.05L13.90 12.13ZM10.42 10.94L5.28 20.26A0.95 0.95 0 0 1 6.86 21.32L13.58 13.06ZM11.17 10.29L3.85 14.92A0.95 0.95 0 0 1 4.69 16.62L12.83 13.71ZM12.13 10.10L2.49 10.38A0.95 0.95 0 0 1 2.36 12.28L11.87 13.90ZM13.06 10.42L5.73 6.63A0.95 0.95 0 0 1 4.67 8.20L10.94 13.58ZM13.71 11.17L8.38 2.42A0.95 0.95 0 0 1 6.67 3.25L10.29 12.83ZM13.90 12.13L13.53 3.69A0.95 0.95 0 0 1 11.64 3.55L10.10 11.87ZM13.58 13.06L18.04 4.74A0.95 0.95 0 0 1 16.47 3.68L10.42 10.94ZM12.83 13.71L20.15 9.08A0.95 0.95 0 0 1 19.31 7.38L11.17 10.29Z"/></svg></span><span class="face back t-claude"></span></span>
+              <!-- ChatGPT -->
+              <span class="tile" style="--i:1"><span class="face t-gpt"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g id="gptLink"><path d="M9.6 9.8V5.9a3.6 3.6 0 0 1 6.5-2.1l.3.4"/></g><use href="#gptLink" transform="rotate(60 12 12)"/><use href="#gptLink" transform="rotate(120 12 12)"/><use href="#gptLink" transform="rotate(180 12 12)"/><use href="#gptLink" transform="rotate(240 12 12)"/><use href="#gptLink" transform="rotate(300 12 12)"/></svg></span><span class="face back t-gpt"></span></span>
+              <!-- NotebookLM -->
+              <span class="tile" style="--i:2"><span class="face t-nlm"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M3 18.5V12a9 9 0 0 1 18 0v6.5"/><path d="M7.5 18.5V13a4.5 4.5 0 0 1 9 0v5.5"/><path d="M3 18.5c2.5-2.6 6-3.5 9-1.6 3-1.9 6.5-1 9 1.6"/></svg></span><span class="face back t-nlm"></span></span>
+              <!-- Figma -->
+              <span class="tile" style="--i:3"><span class="face t-figma"><svg viewBox="0 0 38 57" style="width:18px"><path fill="#1ABCFE" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0ACF83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#FF7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#F24E1E" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#A259FF" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg></span><span class="face back t-figma"></span></span>
+            </span>
+            <svg class="spark" viewBox="0 0 100 100">
+              <defs>
+                <!-- green liquid inside the glass -->
+                <radialGradient id="sparkCore" cx="56%" cy="60%" r="58%">
+                  <stop offset="0" stop-color="#F2FFDC"/>
+                  <stop offset=".22" stop-color="#C4FB8C"/>
+                  <stop offset=".55" stop-color="#6FD83A"/>
+                  <stop offset="1" stop-color="#1B5E12"/>
+                </radialGradient>
+                <!-- shade on the lower-right faces for volume -->
+                <linearGradient id="sparkShade" x1="20%" y1="20%" x2="85%" y2="90%">
+                  <stop offset=".45" stop-color="#0B2A06" stop-opacity="0"/>
+                  <stop offset="1" stop-color="#0B2A06" stop-opacity=".55"/>
+                </linearGradient>
+                <!-- glass sheen on the upper-left faces -->
+                <linearGradient id="sparkSheen" x1="10%" y1="5%" x2="60%" y2="60%">
+                  <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
+                  <stop offset=".4" stop-color="#fff" stop-opacity=".22"/>
+                  <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                </linearGradient>
+                <!-- rim light -->
+                <linearGradient id="sparkRim" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+                  <stop offset=".5" stop-color="#E8FFD0" stop-opacity=".25"/>
+                  <stop offset="1" stop-color="#C8FF96" stop-opacity=".8"/>
+                </linearGradient>
+                <radialGradient id="sparkGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0" stop-color="#FAFFF0" stop-opacity=".95"/>
+                  <stop offset="1" stop-color="#B9FA7C" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="sparkSoft" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="2.2"/>
+                </filter>
+                <clipPath id="sparkClip"><path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z"/></clipPath>
+              </defs>
+              <g clip-path="url(#sparkClip)">
+                <rect width="100" height="100" fill="url(#sparkCore)"/>
+                <rect width="100" height="100" fill="url(#sparkShade)"/>
+                <!-- refracted glow in the middle -->
+                <circle cx="52" cy="54" r="17" fill="url(#sparkGlow)" filter="url(#sparkSoft)"/>
+                <!-- upper-left facets catch the light -->
+                <path d="M50 3C55 33 67 45 97 50H50Z M3 50C33 45 45 33 50 3V50Z" fill="url(#sparkSheen)"/>
+                <!-- darker inner edge -->
+                <path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z" fill="none" stroke="#0E3A08" stroke-opacity=".45" stroke-width="5" filter="url(#sparkSoft)"/>
+              </g>
+              <path d="M50 3C55 33 67 45 97 50 67 55 55 67 50 97 45 67 33 55 3 50 33 45 45 33 50 3Z" fill="none" stroke="url(#sparkRim)" stroke-width="1.2"/>
+              <!-- specular highlights -->
+              <path d="M47.5 12C48.5 24 49 31 45 39" stroke="#fff" stroke-width="3" stroke-opacity=".55" stroke-linecap="round" fill="none" opacity=".9" filter="url(#sparkSoft)"/>
+              <ellipse cx="46.5" cy="22" rx="1.1" ry="4.5" fill="#fff" opacity=".95" transform="rotate(-6 46.5 22)"/>
+              <ellipse cx="24" cy="48.2" rx="9" ry="1.1" fill="#fff" opacity=".55"/>
+              <circle cx="62" cy="62" r="1.6" fill="#fff" opacity=".5"/>
+            </svg>
+          </span>
           <span>AI for speed.</span>
         </div>
       </div>
@@ -448,6 +493,43 @@
         hero.style.setProperty('--mx', (e.clientX - r.left) + 'px');
         hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
       });
+
+      /* Tool cards orbiting the AI spark */
+      var orbit = document.getElementById('orbit');
+      var ring = document.getElementById('ring');
+      var tiles = ring.querySelectorAll('.tile');
+      var angle = 0, last = 0, visible = true, rafId = 0;
+      function paintOrbit() {
+        var step = parseFloat(getComputedStyle(orbit).getPropertyValue('--step')) || 38.2;
+        ring.style.setProperty('--a', angle + 'deg');
+        tiles.forEach(function (t, i) {
+          var z = Math.cos((angle + (i - 1.5) * step) * Math.PI / 180); // 1 = facing us, -1 = behind
+          var o = (0.3 + 0.7 * (z + 1) / 2).toFixed(3);
+          // only blur cards behind the spark; any filter on a front card makes it render soft
+          var filter = z < -0.05 ? 'blur(' + (-z * 1.5).toFixed(2) + 'px)' : 'none';
+          t.querySelectorAll('.face').forEach(function (f) {
+            f.style.opacity = o;
+            f.style.filter = filter;
+          });
+        });
+      }
+      function spin(now) {
+        if (last) angle = (angle + (now - last) * 0.03) % 360; // one turn every 12s
+        last = now;
+        paintOrbit();
+        rafId = visible ? requestAnimationFrame(spin) : 0;
+      }
+      paintOrbit();
+      if (!reduce) {
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function (entries) {
+            visible = entries[0].isIntersecting;
+            if (visible && !rafId) { last = 0; rafId = requestAnimationFrame(spin); }
+          }).observe(orbit);
+        } else {
+          rafId = requestAnimationFrame(spin);
+        }
+      }
 
       /* "Complicated software": pixel scramble that resolves into the words */
       var target = document.getElementById('complex');
