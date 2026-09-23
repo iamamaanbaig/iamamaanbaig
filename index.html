@@ -147,35 +147,34 @@
     }
     /* Tool cards orbiting the spark */
     .orbit {
-      --r: 84px; --step: 38.2deg; /* step = (48px card + 8px gap) / r, in degrees */
+      --r: 76px;     /* ring radius */
+      --card: 40px;  /* card size */
       position: relative; flex: none;
-      width: calc(var(--r) * 2 + 48px); height: 132px;
+      width: calc(var(--r) * 2 + var(--card)); height: 132px;
       display: grid; place-items: center;
       perspective: 900px; transform-style: preserve-3d;
     }
     .orbit > * { grid-area: 1 / 1; }
     .ring {
-      position: relative; width: 48px; height: 48px;
+      position: relative; width: var(--card); height: var(--card);
       transform-style: preserve-3d;
-      transform: rotateZ(-10deg) rotateX(-18deg) rotateY(var(--a, 0deg));
+      transform: translateY(var(--y, 0px)) rotateZ(var(--tz, -10deg)) rotateX(-18deg) rotateY(var(--a, 0deg));
     }
+    /* 4 cards spread evenly (90deg apart) so the ring has no empty stretch */
     .tile {
       position: absolute; inset: 0; transform-style: preserve-3d;
-      transform: rotateY(calc((var(--i) - 1.5) * var(--step))) translateZ(var(--r));
+      transform: rotateY(calc(var(--i) * 90deg)) translateZ(var(--r));
     }
+    /* Both faces show the same image, so it reads correctly from either side.
+       Set it per card with --img, e.g. style="--i:0; --img:url('claude.png')" */
     .face {
-      position: absolute; inset: 0; border-radius: 12px;
-      display: grid; place-items: center;
+      position: absolute; inset: 0; border-radius: 10px;
+      background: var(--img, none) center / cover no-repeat, var(--fill, #1c1c1c);
       backface-visibility: hidden; -webkit-backface-visibility: hidden;
       outline: 1px solid transparent; /* smoother edges while rotated in 3D */
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -2px 4px rgba(0, 0, 0, .22);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), inset 0 1px 0 rgba(255, 255, 255, .3);
     }
     .face.back { transform: rotateY(180deg); }
-    .face svg { width: 28px; height: 28px; }
-    .t-claude { background: #D97757; }
-    .t-gpt { background: #10A37F; }
-    .t-nlm { background: #000; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16), inset 0 1px 0 rgba(255, 255, 255, .25); }
-    .t-figma { background: #fff; }
 
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -277,7 +276,7 @@
       .meta .loc, .meta .scroll-cue { display: none; }
       .photo { width: 92px; height: 56px; }
       .spark { width: 48px; height: 48px; }
-      .orbit { --r: 72px; --step: 44.56deg; height: 120px; }
+      .orbit { --r: 64px; --card: 36px; height: 116px; }
       .tagline { flex-direction: column; gap: 14px; }
       .card .info { flex-direction: column; gap: 4px; }
     }
@@ -321,14 +320,14 @@
           <span>Experience for judgment.</span>
           <span class="orbit" id="orbit" aria-hidden="true">
             <span class="ring" id="ring">
-              <!-- Claude -->
-              <span class="tile" style="--i:0"><span class="face t-claude"><svg viewBox="0 0 24 24"><path fill="#FAF9F5" d="M11.87 13.90L22.31 13.67A0.95 0.95 0 0 1 22.44 11.78L12.13 10.10ZM10.94 13.58L18.43 17.48A0.95 0.95 0 0 1 19.50 15.91L13.06 10.42ZM10.29 12.83L15.44 21.22A0.95 0.95 0 0 1 17.15 20.39L13.71 11.17ZM10.10 11.87L10.49 19.91A0.95 0.95 0 0 1 12.39 20.05L13.90 12.13ZM10.42 10.94L5.28 20.26A0.95 0.95 0 0 1 6.86 21.32L13.58 13.06ZM11.17 10.29L3.85 14.92A0.95 0.95 0 0 1 4.69 16.62L12.83 13.71ZM12.13 10.10L2.49 10.38A0.95 0.95 0 0 1 2.36 12.28L11.87 13.90ZM13.06 10.42L5.73 6.63A0.95 0.95 0 0 1 4.67 8.20L10.94 13.58ZM13.71 11.17L8.38 2.42A0.95 0.95 0 0 1 6.67 3.25L10.29 12.83ZM13.90 12.13L13.53 3.69A0.95 0.95 0 0 1 11.64 3.55L10.10 11.87ZM13.58 13.06L18.04 4.74A0.95 0.95 0 0 1 16.47 3.68L10.42 10.94ZM12.83 13.71L20.15 9.08A0.95 0.95 0 0 1 19.31 7.38L11.17 10.29Z"/></svg></span><span class="face back t-claude"></span></span>
-              <!-- ChatGPT -->
-              <span class="tile" style="--i:1"><span class="face t-gpt"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g id="gptLink"><path d="M9.6 9.8V5.9a3.6 3.6 0 0 1 6.5-2.1l.3.4"/></g><use href="#gptLink" transform="rotate(60 12 12)"/><use href="#gptLink" transform="rotate(120 12 12)"/><use href="#gptLink" transform="rotate(180 12 12)"/><use href="#gptLink" transform="rotate(240 12 12)"/><use href="#gptLink" transform="rotate(300 12 12)"/></svg></span><span class="face back t-gpt"></span></span>
-              <!-- NotebookLM -->
-              <span class="tile" style="--i:2"><span class="face t-nlm"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M3 18.5V12a9 9 0 0 1 18 0v6.5"/><path d="M7.5 18.5V13a4.5 4.5 0 0 1 9 0v5.5"/><path d="M3 18.5c2.5-2.6 6-3.5 9-1.6 3-1.9 6.5-1 9 1.6"/></svg></span><span class="face back t-nlm"></span></span>
-              <!-- Figma -->
-              <span class="tile" style="--i:3"><span class="face t-figma"><svg viewBox="0 0 38 57" style="width:18px"><path fill="#1ABCFE" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0ACF83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#FF7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#F24E1E" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#A259FF" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg></span><span class="face back t-figma"></span></span>
+              <!-- Card 1: Claude. Add the image with --img:url('your-file.png') -->
+              <span class="tile" style="--i:0; --fill:#D97757"><span class="face"></span><span class="face back"></span></span>
+              <!-- Card 2: ChatGPT. Add the image with --img:url('your-file.png') -->
+              <span class="tile" style="--i:1; --fill:#10A37F"><span class="face"></span><span class="face back"></span></span>
+              <!-- Card 3: NotebookLM. Add the image with --img:url('your-file.png') -->
+              <span class="tile" style="--i:2; --fill:#000"><span class="face"></span><span class="face back"></span></span>
+              <!-- Card 4: Figma. Add the image with --img:url('your-file.png') -->
+              <span class="tile" style="--i:3; --fill:#fff"><span class="face"></span><span class="face back"></span></span>
             </span>
             <svg class="spark" viewBox="0 0 100 100">
               <defs>
@@ -494,32 +493,39 @@
         hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
       });
 
-      /* Tool cards orbiting the AI spark */
+      /* Tool cards orbiting the AI spark:
+         glide a quarter turn, rest on the next card, repeat; the ring also floats gently */
       var orbit = document.getElementById('orbit');
       var ring = document.getElementById('ring');
       var tiles = ring.querySelectorAll('.tile');
-      var angle = 0, last = 0, visible = true, rafId = 0;
-      function paintOrbit() {
-        var step = parseFloat(getComputedStyle(orbit).getPropertyValue('--step')) || 38.2;
+      var MOVE = 1200, REST = 1800, CYCLE = MOVE + REST, OFFSET = 45;
+      var elapsed = 0, last = 0, visible = true, rafId = 0;
+      function easeInOut(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+      function paintOrbit(t) {
+        var step = Math.floor(t / CYCLE);
+        var p = easeInOut(Math.min((t % CYCLE) / MOVE, 1));
+        var angle = OFFSET - (step + p) * 90;
         ring.style.setProperty('--a', angle + 'deg');
-        tiles.forEach(function (t, i) {
-          var z = Math.cos((angle + (i - 1.5) * step) * Math.PI / 180); // 1 = facing us, -1 = behind
+        ring.style.setProperty('--y', (Math.sin(t / 900) * 3).toFixed(2) + 'px');
+        ring.style.setProperty('--tz', (-10 + Math.sin(t / 1400) * 2).toFixed(2) + 'deg');
+        tiles.forEach(function (tile, i) {
+          var z = Math.cos((angle + i * 90) * Math.PI / 180); // 1 = facing us, -1 = behind the spark
           var o = (0.3 + 0.7 * (z + 1) / 2).toFixed(3);
           // only blur cards behind the spark; any filter on a front card makes it render soft
           var filter = z < -0.05 ? 'blur(' + (-z * 1.5).toFixed(2) + 'px)' : 'none';
-          t.querySelectorAll('.face').forEach(function (f) {
+          tile.querySelectorAll('.face').forEach(function (f) {
             f.style.opacity = o;
             f.style.filter = filter;
           });
         });
       }
       function spin(now) {
-        if (last) angle = (angle + (now - last) * 0.03) % 360; // one turn every 12s
+        if (last) elapsed += Math.min(now - last, 50);
         last = now;
-        paintOrbit();
+        paintOrbit(elapsed);
         rafId = visible ? requestAnimationFrame(spin) : 0;
       }
-      paintOrbit();
+      paintOrbit(0);
       if (!reduce) {
         if ('IntersectionObserver' in window) {
           new IntersectionObserver(function (entries) {
