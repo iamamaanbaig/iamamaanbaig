@@ -145,12 +145,15 @@
       filter: drop-shadow(0 6px 14px rgba(120, 230, 70, .35));
       animation: float 5s ease-in-out infinite;
     }
-    /* Tool cards orbiting the spark */
+    /* Tool cards orbiting the spark: 8 curved cards, the 4 images repeat (1 2 3 4 1 2 3 4).
+       Add images with --img-1 ... --img-4 on .orbit, e.g. --img-1: url('claude.png') */
     .orbit {
-      --r: 76px;     /* ring radius */
-      --card: 40px;  /* card size */
+      --r: 54px;     /* ring radius */
+      --card: 34px;  /* card width and height, measured along the curve */
+      --img-1: none; --img-2: none; --img-3: none; --img-4: none;
+      --fill-1: #D97757; --fill-2: #10A37F; --fill-3: #000; --fill-4: #fff; /* placeholders until images are added */
       position: relative; flex: none;
-      width: calc(var(--r) * 2 + var(--card)); height: 132px;
+      width: calc(var(--r) * 2 + var(--card)); height: 150px;
       display: grid; place-items: center;
       perspective: 900px; transform-style: preserve-3d;
     }
@@ -158,23 +161,25 @@
     .ring {
       position: relative; width: var(--card); height: var(--card);
       transform-style: preserve-3d;
-      transform: translateY(var(--y, 0px)) rotateZ(var(--tz, -10deg)) rotateX(-18deg) rotateY(var(--a, 0deg));
+      transform: translateY(var(--y, 0px)) rotateZ(var(--tz, -35deg)) rotateX(-28deg) rotateY(var(--a, 0deg));
     }
-    /* 4 cards spread evenly (90deg apart) so the ring has no empty stretch */
-    .tile {
-      position: absolute; inset: 0; transform-style: preserve-3d;
-      transform: rotateY(calc(var(--i) * 90deg)) translateZ(var(--r));
-    }
-    /* Both faces show the same image, so it reads correctly from either side.
-       Set it per card with --img, e.g. style="--i:0; --img:url('claude.png')" */
-    .face {
-      position: absolute; inset: 0; border-radius: 10px;
-      background: var(--img, none) center / cover no-repeat, var(--fill, #1c1c1c);
+    .tile, .slice { position: absolute; transform-style: preserve-3d; }
+    .tile { inset: 0; }
+    /* Each card is built from thin vertical slices so it bends with the ring */
+    .slice { top: 0; left: 50%; height: 100%; }
+    .slice i {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(rgba(10, 10, 10, var(--dim, 0)), rgba(10, 10, 10, var(--dim, 0))),
+        linear-gradient(rgba(0, 0, 0, var(--shade, 0)), rgba(0, 0, 0, var(--shade, 0))),
+        var(--img) var(--bx) 0 / var(--card) 100% no-repeat,
+        var(--fill);
+      -webkit-mask: var(--corner) var(--bx) 0 / var(--card) 100% no-repeat;
+              mask: var(--corner) var(--bx) 0 / var(--card) 100% no-repeat;
       backface-visibility: hidden; -webkit-backface-visibility: hidden;
-      outline: 1px solid transparent; /* smoother edges while rotated in 3D */
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), inset 0 1px 0 rgba(255, 255, 255, .3);
+      filter: var(--f, none); /* cards stay opaque; they fade by darkening, so overlapping slices never show seams */
     }
-    .face.back { transform: rotateY(180deg); }
+    .slice i + i { transform: rotateY(180deg); --bx: var(--bx-back); } /* inner side of the card */
 
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -276,7 +281,7 @@
       .meta .loc, .meta .scroll-cue { display: none; }
       .photo { width: 92px; height: 56px; }
       .spark { width: 48px; height: 48px; }
-      .orbit { --r: 64px; --card: 36px; height: 116px; }
+      .orbit { --r: 48px; --card: 30px; height: 116px; }
       .tagline { flex-direction: column; gap: 14px; }
       .card .info { flex-direction: column; gap: 4px; }
     }
@@ -318,17 +323,10 @@
             <!-- Add your image here, e.g. <img src="me.jpg" alt="Amaan Baig"> -->
           </span>
           <span>Experience for judgment.</span>
+          <!-- 8 curved cards repeat 4 images. Add them here, e.g.
+               style="--img-1:url('claude.png'); --img-2:url('chatgpt.png'); --img-3:url('notebooklm.png'); --img-4:url('figma.png')" -->
           <span class="orbit" id="orbit" aria-hidden="true">
-            <span class="ring" id="ring">
-              <!-- Card 1: Claude. Add the image with --img:url('your-file.png') -->
-              <span class="tile" style="--i:0; --fill:#D97757"><span class="face"></span><span class="face back"></span></span>
-              <!-- Card 2: ChatGPT. Add the image with --img:url('your-file.png') -->
-              <span class="tile" style="--i:1; --fill:#10A37F"><span class="face"></span><span class="face back"></span></span>
-              <!-- Card 3: NotebookLM. Add the image with --img:url('your-file.png') -->
-              <span class="tile" style="--i:2; --fill:#000"><span class="face"></span><span class="face back"></span></span>
-              <!-- Card 4: Figma. Add the image with --img:url('your-file.png') -->
-              <span class="tile" style="--i:3; --fill:#fff"><span class="face"></span><span class="face back"></span></span>
-            </span>
+            <span class="ring" id="ring"></span> <!-- cards are built by the script below -->
             <svg class="spark" viewBox="0 0 100 100">
               <defs>
                 <!-- green liquid inside the glass -->
@@ -494,29 +492,52 @@
       });
 
       /* Tool cards orbiting the AI spark:
-         glide a quarter turn, rest on the next card, repeat; the ring also floats gently */
+         8 curved cards; glide 1/8 turn, rest, repeat; the ring also floats gently */
       var orbit = document.getElementById('orbit');
       var ring = document.getElementById('ring');
-      var tiles = ring.querySelectorAll('.tile');
-      var MOVE = 1200, REST = 1800, CYCLE = MOVE + REST, OFFSET = 45;
+      var CARDS = 8, SLICES = 8, GAP = 360 / CARDS;
+      var CORNER = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" preserveAspectRatio="none"><rect width="40" height="40" rx="10"/></svg>') + '")';
+      var tiles = [];
+      function buildOrbit() {
+        var cs = getComputedStyle(orbit);
+        var r = parseFloat(cs.getPropertyValue('--r'));
+        var card = parseFloat(cs.getPropertyValue('--card'));
+        var arc = card / r;                       // card angle in radians
+        var d = arc / SLICES;                     // slice angle
+        var w = 2 * r * Math.sin(d / 2) + 1.2;    // slice width (+ overlap hides seams)
+        var html = '';
+        for (var c = 0; c < CARDS; c++) {
+          var k = c % 4 + 1;
+          html += '<span class="tile" style="--img:var(--img-' + k + ');--fill:var(--fill-' + k + ');--corner:' + CORNER.replace(/"/g, '&quot;') + ';transform:rotateY(' + c * GAP + 'deg)">';
+          for (var n = 0; n < SLICES; n++) {
+            var t = (n - (SLICES - 1) / 2) * d;   // slice offset from the card's centre
+            var shade = (0.22 * Math.abs(t) / (arc / 2)).toFixed(3);
+            html += '<span class="slice" style="width:' + w.toFixed(2) + 'px;margin-left:' + (-w / 2).toFixed(2) + 'px;' +
+              'transform:rotateY(' + (t * 180 / Math.PI).toFixed(3) + 'deg) translateZ(' + r + 'px);' +
+              '--bx:' + (-n * card / SLICES).toFixed(2) + 'px;--bx-back:' + (-(SLICES - 1 - n) * card / SLICES).toFixed(2) + 'px;--shade:' + shade + '">' +
+              '<i></i><i></i></span>';
+          }
+          html += '</span>';
+        }
+        ring.innerHTML = html;
+        tiles = ring.querySelectorAll('.tile');
+      }
+
+      var MOVE = 1100, REST = 1700, CYCLE = MOVE + REST, OFFSET = GAP / 2;
       var elapsed = 0, last = 0, visible = true, rafId = 0;
       function easeInOut(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
       function paintOrbit(t) {
         var step = Math.floor(t / CYCLE);
         var p = easeInOut(Math.min((t % CYCLE) / MOVE, 1));
-        var angle = OFFSET - (step + p) * 90;
+        var angle = OFFSET - (step + p) * GAP;
         ring.style.setProperty('--a', angle + 'deg');
         ring.style.setProperty('--y', (Math.sin(t / 900) * 3).toFixed(2) + 'px');
-        ring.style.setProperty('--tz', (-10 + Math.sin(t / 1400) * 2).toFixed(2) + 'deg');
+        ring.style.setProperty('--tz', (-35 + Math.sin(t / 1400) * 2).toFixed(2) + 'deg');
         tiles.forEach(function (tile, i) {
-          var z = Math.cos((angle + i * 90) * Math.PI / 180); // 1 = facing us, -1 = behind the spark
-          var o = (0.3 + 0.7 * (z + 1) / 2).toFixed(3);
+          var z = Math.cos((angle + i * GAP) * Math.PI / 180); // 1 = facing us, -1 = behind the spark
+          tile.style.setProperty('--dim', (0.65 * (1 - z) / 2).toFixed(3));
           // only blur cards behind the spark; any filter on a front card makes it render soft
-          var filter = z < -0.05 ? 'blur(' + (-z * 1.5).toFixed(2) + 'px)' : 'none';
-          tile.querySelectorAll('.face').forEach(function (f) {
-            f.style.opacity = o;
-            f.style.filter = filter;
-          });
+          tile.style.setProperty('--f', z < -0.05 ? 'blur(' + (-z * 1.4).toFixed(2) + 'px)' : 'none');
         });
       }
       function spin(now) {
@@ -525,7 +546,12 @@
         paintOrbit(elapsed);
         rafId = visible ? requestAnimationFrame(spin) : 0;
       }
+      buildOrbit();
       paintOrbit(0);
+      var phone = window.matchMedia('(max-width: 640px)');
+      (phone.addEventListener ? phone.addEventListener.bind(phone, 'change') : phone.addListener.bind(phone))(function () {
+        buildOrbit(); paintOrbit(elapsed);
+      });
       if (!reduce) {
         if ('IntersectionObserver' in window) {
           new IntersectionObserver(function (entries) {
