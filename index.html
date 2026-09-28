@@ -167,26 +167,29 @@
       position: relative; display: grid; grid-template-columns: var(--col) 1fr auto; align-items: start;
       width: 100%; padding: 4.4vw var(--gutter) 2.2vw 0; margin: 0;
       background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;
-      overflow: hidden;
+      overflow: hidden; -webkit-tap-highlight-color: transparent;
     }
     .work-row::before {        /* soft light that sweeps in on hover */
       content: ""; position: absolute; inset: 0; z-index: -1;
       background: linear-gradient(90deg, rgba(166, 243, 106, .07), rgba(166, 243, 106, 0) 70%);
       transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease);
     }
-    .work-row:hover::before, .work-row:focus-visible::before { transform: none; }
+    @media (hover: hover) { .work-row:hover::before { transform: none; } }
+    .work-row:focus-visible::before { transform: none; }
     .work-num {
       justify-self: center; font-weight: 200; font-size: 9vw; line-height: .8; color: var(--num);
       transition: color .35s var(--ease), transform 1s var(--ease), opacity 1s var(--ease);
     }
-    .work-row:hover .work-num, .work-row:focus-visible .work-num { color: var(--green); }
+    @media (hover: hover) { .work-row:hover .work-num { color: var(--green); } }
+    .work-row:focus-visible .work-num { color: var(--green); }
     .work-main { display: block; min-width: 0; }
     .work-title {
       display: block; overflow: hidden; padding-bottom: .08em;
       font-weight: 500; font-size: 4.5vw; line-height: 1.12; letter-spacing: -.01em;
     }
     .work-title > span { display: block; transition: transform 1s var(--ease) calc(var(--i, 0) * 90ms + 120ms), translate .5s var(--ease); }
-    .work-row:hover .work-title > span, .work-row:focus-visible .work-title > span { translate: 1.2vw 0; }
+    @media (hover: hover) { .work-row:hover .work-title > span { translate: 1.2vw 0; } }
+    .work-row:focus-visible .work-title > span { translate: 1.2vw 0; }
     .work-meta {
       display: flex; justify-content: space-between; gap: 2vw; margin-top: 2.6vw;
       color: var(--muted); font-size: clamp(13px, 1.45vw, 26px);
@@ -196,44 +199,23 @@
       align-self: center; margin-left: 2vw; font-size: 3vw; color: var(--green);
       opacity: 0; transform: translateX(-1.5vw); transition: opacity .35s, transform .5s var(--ease);
     }
-    .work-row:hover .work-go, .work-row:focus-visible .work-go { opacity: 1; transform: none; }
+    @media (hover: hover) { .work-row:hover .work-go { opacity: 1; transform: none; } }
+    .work-row:focus-visible .work-go, .work-row[aria-expanded="true"] .work-go { opacity: 1; transform: rotate(90deg); }
     /* Scroll reveal (only when the script is running) */
     .js .work-item:not(.in)::after { transform: scaleX(0); }
     .js .work-item:not(.in) .work-num { opacity: 0; transform: translateY(30%); }
     .js .work-item:not(.in) .work-title > span { transform: translateY(105%); }
     .js .work-item:not(.in) .work-meta { opacity: 0; }
 
-    /* Detail view: number rail on the left, the open project on the right */
-    .work-detail { display: grid; grid-template-columns: var(--col) 1fr; }
-    .work-detail[hidden] { display: none; }
-    .work-rail {
-      position: relative; background: #0b0b0a; border-right: 1px solid var(--line);
-    }
-    .rail-inner { position: sticky; top: 4vw; display: flex; flex-direction: column; align-items: center; gap: 4.5vw; padding: 4.4vw 0 6vw; }
-    .rail-num {
-      position: relative; padding: 0 1vw; background: none; border: 0; cursor: pointer;
-      font: 200 9vw/.8 var(--sans); color: var(--num); transition: color .35s var(--ease);
-    }
-    .rail-num:hover { color: var(--green); }
-    .rail-num[aria-current="true"] { color: var(--text); }
-    .rail-num[aria-current="true"]::after {   /* green marker beside the open project */
-      content: ""; position: absolute; right: -1.6vw; top: 50%; width: .5vw; height: .5vw; min-width: 6px; min-height: 6px;
-      border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); transform: translateY(-50%);
-    }
-    .work-panels { position: relative; padding: 4.4vw var(--gutter) 2vw 5vw; min-width: 0; }
-    .work-back {
-      position: absolute; top: 1.4vw; right: var(--gutter); z-index: 1;
-      padding: .4em .9em; border: 1px solid var(--line); border-radius: 999px; background: none;
-      color: var(--muted); font: inherit; font-size: clamp(13px, 1.1vw, 18px); cursor: pointer;
-      transition: color .25s, border-color .25s;
-    }
-    .work-back:hover { color: var(--text); border-color: var(--muted); }
-    .work-panel[hidden] { display: none; }
-    .panel-title { margin: 0; overflow: hidden; font-weight: 500; font-size: 4.5vw; line-height: 1.12; letter-spacing: -.01em; outline: none; }
-    .panel-title > span { display: block; }
-    .panel-meta { display: flex; justify-content: space-between; gap: 2vw; margin: 2.6vw 0 0; color: var(--muted); font-size: clamp(13px, 1.45vw, 26px); }
-    .panel-rule { height: 1px; margin: 1.6vw 0 0; border: 0; background: var(--line); transform-origin: left; }
-    .pcs { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 3.6vw; }
+    /* Expanded project: opens in place under its row */
+    .work-row[aria-expanded="true"] .work-num { color: var(--text); }
+    .work-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .75s var(--ease); }
+    .work-item.open .work-body { grid-template-rows: 1fr; }
+    .body-clip { min-height: 0; overflow: hidden; }
+    .body-inner { padding: 0 var(--gutter) 4.4vw var(--col); transition: opacity .35s ease; }
+    .work-item:not(.open) .body-inner { opacity: 0; }
+    .panel-rule { height: 1px; margin: 0; border: 0; background: var(--line); transform-origin: left; }
+    .pcs { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 3.2vw; }
     .pcs-col { position: relative; padding: 0 2.4vw; }
     .pcs-col:first-child { padding-left: 0; }
     .pcs-col + .pcs-col::before {          /* vertical divider, grows in */
@@ -241,27 +223,22 @@
     }
     .pcs h4 { margin: 0 0 1.6vw; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(22px, 2.6vw, 46px); color: var(--green); }
     .pcs p { margin: 0; font-size: clamp(15px, 1.55vw, 27px); line-height: 1.45; color: #d6d6d0; }
-    .panel-soon { margin: 3.6vw 0 0; color: var(--muted); font-size: clamp(15px, 1.55vw, 27px); }
-    .panel-visual { margin: 4.4vw 0 0; border-radius: clamp(8px, 1vw, 16px); overflow: hidden; background: #111; }
+    .panel-soon { margin: 3.2vw 0 0; color: var(--muted); font-size: clamp(15px, 1.55vw, 27px); }
+    .panel-visual { margin: 4vw 0 0; border-radius: clamp(8px, 1vw, 16px); overflow: hidden; background: #111; }
     .panel-visual img { width: 100%; height: auto; }
 
-    /* Detail entrance: plays each time a project opens */
-    .work-panel.enter .panel-title > span { animation: wUp .9s var(--ease) both; }
-    .work-panel.enter .panel-meta        { animation: wFade .7s var(--ease) .15s both; }
-    .work-panel.enter .panel-rule        { animation: wDraw 1s var(--ease) .2s both; }
-    .work-panel.enter .pcs-col           { animation: wUp .8s var(--ease) both; animation-delay: calc(.35s + var(--c, 0) * .12s); }
-    .work-panel.enter .pcs-col + .pcs-col::before { animation: wGrow .9s var(--ease) both; animation-delay: calc(.4s + var(--c, 0) * .12s); }
-    .work-panel.enter .panel-soon        { animation: wUp .8s var(--ease) .35s both; }
-    .work-panel.enter .panel-visual      { animation: wWipe 1.2s var(--ease) .6s both; }
-    .work-panel.enter .panel-visual img  { animation: wSettle 1.6s var(--ease) .6s both; }
-    .work-panel.leave { animation: wLeave .25s ease-in both; }
+    /* Opening animation: plays each time a project opens (desktop only) */
+    .work-item.enter .panel-rule        { animation: wDraw 1s var(--ease) .1s both; }
+    .work-item.enter .pcs-col           { animation: wUp .8s var(--ease) both; animation-delay: calc(.2s + var(--c, 0) * .12s); }
+    .work-item.enter .pcs-col + .pcs-col::before { animation: wGrow .9s var(--ease) both; animation-delay: calc(.25s + var(--c, 0) * .12s); }
+    .work-item.enter .panel-soon        { animation: wUp .8s var(--ease) .2s both; }
+    .work-item.enter .panel-visual      { animation: wWipe 1.2s var(--ease) .4s both; }
+    .work-item.enter .panel-visual img  { animation: wSettle 1.6s var(--ease) .4s both; }
     @keyframes wUp    { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
-    @keyframes wFade  { from { opacity: 0; } to { opacity: 1; } }
     @keyframes wDraw  { from { transform: scaleX(0); } to { transform: none; } }
     @keyframes wGrow  { from { transform: scaleY(0); } to { transform: none; } }
     @keyframes wWipe  { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
     @keyframes wSettle{ from { transform: scale(1.08); } to { transform: none; } }
-    @keyframes wLeave { to { opacity: 0; transform: translateY(-16px); } }
 
     /* Load-in */
     .rise { opacity: 0; transform: translateY(18px); animation: rise .9s var(--ease) forwards; animation-delay: calc(var(--d, 0) * 110ms); }
@@ -281,27 +258,22 @@
       .clients { flex-wrap: wrap; justify-content: center; gap: 18px 28px; padding-top: 48px; }
       .clients img { height: 30px; }
 
+      /* Phones: same layout (number left, title right), no hover effects and no animation */
       .work { --col: 64px; padding-top: 56px; }
+      .work *, .work *::before, .work *::after { transition: none !important; animation: none !important; }
       .work-head { padding-bottom: 16px; }
       .work-row { grid-template-columns: var(--col) 1fr; padding: 28px var(--gutter) 20px 0; }
+      .work-row::before, .work-go { display: none; }
       .work-num { font-size: 48px; }
-      .work-title, .panel-title { font-size: 28px; }
-      .work-meta, .panel-meta { flex-direction: column; gap: 2px; margin-top: 14px; }
-      .work-go { display: none; }
-      .work-detail { grid-template-columns: 1fr; }
-      .work-rail { position: sticky; top: 0; z-index: 3; border-right: 0; border-bottom: 1px solid var(--line); background: rgba(0, 0, 0, .92); }
-      .rail-inner { position: static; flex-direction: row; justify-content: flex-start; gap: 8px; padding: 12px var(--gutter); }
-      .rail-num { font-size: 34px; padding: 0 12px; }
-      .rail-num[aria-current="true"]::after { right: auto; left: 50%; top: auto; bottom: -10px; transform: translateX(-50%); }
-      .work-panels { padding: 56px var(--gutter) 8px; }
-      .work-back { top: 14px; }
-      .pcs { grid-template-columns: 1fr; gap: 28px; margin-top: 28px; }
+      .work-title { font-size: 28px; }
+      .work-meta { flex-direction: column; gap: 2px; margin-top: 14px; }
+      .body-inner { padding-bottom: 32px; }
+      .pcs { grid-template-columns: 1fr; gap: 24px; margin-top: 24px; }
       .pcs-col { padding: 0; }
-      .pcs-col + .pcs-col { padding-top: 28px; }
-      .pcs-col + .pcs-col::before { top: 0; bottom: auto; left: 0; right: 0; width: auto; height: 1px; transform-origin: left; }
-      .work-panel.enter .pcs-col + .pcs-col::before { animation-name: wDraw; }
-      .pcs h4 { margin-bottom: 10px; }
-      .panel-visual { margin-top: 32px; }
+      .pcs-col + .pcs-col { padding-top: 24px; }
+      .pcs-col + .pcs-col::before { bottom: auto; right: 0; width: auto; height: 1px; }
+      .pcs h4 { margin-bottom: 8px; }
+      .panel-visual { margin-top: 28px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -405,7 +377,7 @@
     <!-- List view -->
     <ol class="work-list" id="workList">
       <li class="work-item" style="--i:0">
-        <button class="work-row" type="button" data-open="0" aria-controls="workDetail">
+        <button class="work-row" type="button" data-open="0" aria-expanded="false" aria-controls="work-body-0">
           <span class="work-num" aria-hidden="true">1</span>
           <span class="work-main">
             <span class="work-title"><span>Saved Taxes</span></span>
@@ -413,9 +385,29 @@
           </span>
           <span class="work-go" aria-hidden="true">→</span>
         </button>
+        <div class="work-body" id="work-body-0">
+          <div class="body-clip"><div class="body-inner">
+            <hr class="panel-rule">
+            <div class="pcs">
+              <div class="pcs-col" style="--c:0">
+                <h4>Problem</h4>
+                <p>Stakeholders were not able to close the process by the deadline, because they first had to clear a backlog of errors in it.</p>
+              </div>
+              <div class="pcs-col" style="--c:1">
+                <h4>Cause</h4>
+                <p>Being high-level associates, stakeholders always have more pressing matters at hand, and only spend time on GIFA when it’s on red alert or when they find the time.</p>
+              </div>
+              <div class="pcs-col" style="--c:2">
+                <h4>Solution</h4>
+                <p>Designed a system that visualizes progress and creates a sense of responsibility to take action.</p>
+              </div>
+            </div>
+            <figure class="panel-visual"><img src="assets/work/gifa-process-streamline.jpg" alt="Process Streamline card showing the Approvals and Payments stages, with progress on award allocations, approvals, document uploads and signatures" loading="lazy"></figure>
+          </div></div>
+        </div>
       </li>
       <li class="work-item" style="--i:1">
-        <button class="work-row" type="button" data-open="1" aria-controls="workDetail">
+        <button class="work-row" type="button" data-open="1" aria-expanded="false" aria-controls="work-body-1">
           <span class="work-num" aria-hidden="true">2</span>
           <span class="work-main">
             <span class="work-title"><span>Reduce Support Calls</span></span>
@@ -423,9 +415,15 @@
           </span>
           <span class="work-go" aria-hidden="true">→</span>
         </button>
+        <div class="work-body" id="work-body-1">
+          <div class="body-clip"><div class="body-inner">
+            <hr class="panel-rule">
+            <p class="panel-soon">The full case study is coming soon.</p>
+          </div></div>
+        </div>
       </li>
       <li class="work-item" style="--i:2">
-        <button class="work-row" type="button" data-open="2" aria-controls="workDetail">
+        <button class="work-row" type="button" data-open="2" aria-expanded="false" aria-controls="work-body-2">
           <span class="work-num" aria-hidden="true">3</span>
           <span class="work-main">
             <span class="work-title"><span>Saved Time on Fee Management Tasks</span></span>
@@ -433,9 +431,16 @@
           </span>
           <span class="work-go" aria-hidden="true">→</span>
         </button>
+        <div class="work-body" id="work-body-2">
+          <div class="body-clip"><div class="body-inner">
+            <hr class="panel-rule">
+            <p class="panel-soon">The full case study is coming soon.</p>
+            <figure class="panel-visual"><img src="ee.png" alt="Master Fee Template interface" loading="lazy"></figure>
+          </div></div>
+        </div>
       </li>
       <li class="work-item" style="--i:3">
-        <button class="work-row" type="button" data-open="3" aria-controls="workDetail">
+        <button class="work-row" type="button" data-open="3" aria-expanded="false" aria-controls="work-body-3">
           <span class="work-num" aria-hidden="true">4</span>
           <span class="work-main">
             <span class="work-title"><span>Made Navigation between 100’s of resources obvious</span></span>
@@ -443,67 +448,15 @@
           </span>
           <span class="work-go" aria-hidden="true">→</span>
         </button>
+        <div class="work-body" id="work-body-3">
+          <div class="body-clip"><div class="body-inner">
+            <hr class="panel-rule">
+            <p class="panel-soon">The full case study is coming soon.</p>
+          </div></div>
+        </div>
       </li>
     </ol>
 
-    <!-- Detail view: opens when a project is clicked -->
-    <div class="work-detail" id="workDetail" hidden>
-      <nav class="work-rail" aria-label="Projects">
-        <div class="rail-inner">
-          <button class="rail-num" type="button" data-go="0" aria-label="Project 1: Saved Taxes">1</button>
-          <button class="rail-num" type="button" data-go="1" aria-label="Project 2: Reduce Support Calls">2</button>
-          <button class="rail-num" type="button" data-go="2" aria-label="Project 3: Saved Time on Fee Management Tasks">3</button>
-          <button class="rail-num" type="button" data-go="3" aria-label="Project 4: Made Navigation between 100’s of resources obvious">4</button>
-        </div>
-      </nav>
-
-      <div class="work-panels">
-        <button class="work-back" type="button">← All work</button>
-
-        <article class="work-panel" data-panel="0" aria-labelledby="wp0">
-          <h3 class="panel-title" id="wp0" tabindex="-1"><span>Saved Taxes</span></h3>
-          <p class="panel-meta"><span>Business process digitization</span><span>LaSalle Investment Management</span></p>
-          <hr class="panel-rule">
-          <div class="pcs">
-            <div class="pcs-col" style="--c:0">
-              <h4>Problem</h4>
-              <p>Stakeholders were not able to close the process by the deadline, because they first had to clear a backlog of errors in it.</p>
-            </div>
-            <div class="pcs-col" style="--c:1">
-              <h4>Cause</h4>
-              <p>Being high-level associates, stakeholders always have more pressing matters at hand, and only spend time on GIFA when it’s on red alert or when they find the time.</p>
-            </div>
-            <div class="pcs-col" style="--c:2">
-              <h4>Solution</h4>
-              <p>Designed a system that visualizes progress and creates a sense of responsibility to take action.</p>
-            </div>
-          </div>
-          <figure class="panel-visual"><img src="assets/work/gifa-process-streamline.jpg" alt="Process Streamline card showing the Approvals and Payments stages, with progress on award allocations, approvals, document uploads and signatures" loading="lazy"></figure>
-        </article>
-
-        <article class="work-panel" data-panel="1" aria-labelledby="wp1" hidden>
-          <h3 class="panel-title" id="wp1" tabindex="-1"><span>Reduce Support Calls</span></h3>
-          <p class="panel-meta"><span>Feature Enhancement</span><span>Zithara.ai</span></p>
-          <hr class="panel-rule">
-          <p class="panel-soon">The full case study is coming soon.</p>
-        </article>
-
-        <article class="work-panel" data-panel="2" aria-labelledby="wp2" hidden>
-          <h3 class="panel-title" id="wp2" tabindex="-1"><span>Saved Time on Fee Management Tasks</span></h3>
-          <p class="panel-meta"><span>Feature Design</span><span>LaSalle Investment Management</span></p>
-          <hr class="panel-rule">
-          <p class="panel-soon">The full case study is coming soon.</p>
-          <figure class="panel-visual"><img src="ee.png" alt="Master Fee Template interface" loading="lazy"></figure>
-        </article>
-
-        <article class="work-panel" data-panel="3" aria-labelledby="wp3" hidden>
-          <h3 class="panel-title" id="wp3" tabindex="-1"><span>Made Navigation between 100’s of resources obvious</span></h3>
-          <p class="panel-meta"><span>Business process digitization</span><span>LaSalle Investment Management</span></p>
-          <hr class="panel-rule">
-          <p class="panel-soon">The full case study is coming soon.</p>
-        </article>
-      </div>
-    </div>
   </section>
 
   <script>
@@ -547,19 +500,13 @@
     })();
 
     (function () {
-      /* Selected work: list rows reveal on scroll; a click opens the project with the
-         numbers gliding into the side rail; the rail switches projects; "All work" or Esc closes */
+      /* Selected work: rows reveal on scroll. On desktop, hovering a project opens it in place
+         (click or Enter pins it open for keyboard users). On phones, a tap opens it, with no animation. */
+      var desktop = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 761px)');
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var list = document.getElementById('workList');
-      var detail = document.getElementById('workDetail');
-      var items = list.querySelectorAll('.work-item');
-      var rows = list.querySelectorAll('.work-row');
-      var listNums = list.querySelectorAll('.work-num');
-      var railNums = detail.querySelectorAll('.rail-num');
-      var panels = detail.querySelectorAll('.work-panel');
-      var current = -1;
+      var items = document.querySelectorAll('#workList .work-item');
 
-      if ('IntersectionObserver' in window && !reduce) {
+      if ('IntersectionObserver' in window && !reduce && desktop.matches) {
         var io = new IntersectionObserver(function (entries) {
           entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
         }, { threshold: 0.25 });
@@ -568,57 +515,37 @@
         items.forEach(function (el) { el.classList.add('in'); });
       }
 
-      function rects(nodes) { return Array.prototype.map.call(nodes, function (n) { return n.getBoundingClientRect(); }); }
-      // FLIP: make each element start where its partner was, then glide into place
-      function glide(nodes, from) {
-        if (reduce || !nodes[0].animate) return;
-        rects(nodes).forEach(function (to, i) {
-          var a = from[i];
-          if (!a || !to.width) return;
-          nodes[i].animate([
-            { transform: 'translate(' + (a.left - to.left) + 'px,' + (a.top - to.top) + 'px) scale(' + (a.height / to.height) + ')', transformOrigin: 'top left' },
-            { transform: 'none', transformOrigin: 'top left' }
-          ], { duration: 750, delay: i * 45, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
-        });
-      }
-      function replay(panel) { panel.classList.remove('enter'); void panel.offsetWidth; panel.classList.add('enter'); }
-      function show(i) {
-        panels.forEach(function (p, k) { p.hidden = k !== i; });
-        railNums.forEach(function (b, k) { b.setAttribute('aria-current', k === i ? 'true' : 'false'); });
-        replay(panels[i]);
-        current = i;
-      }
-      function open(i) {
-        var from = rects(listNums);
-        list.hidden = true; detail.hidden = false;
-        show(i);
-        var top = detail.getBoundingClientRect().top;
-        if (top < 0 || top > window.innerHeight * .4) window.scrollBy(0, top - 80);
-        glide(railNums, from);
-        panels[i].querySelector('.panel-title').focus({ preventScroll: true });
-      }
-      function go(i) {
-        if (i === current) return;
-        var out = panels[current];
-        if (reduce) { show(i); return; }
-        out.classList.remove('enter'); out.classList.add('leave');
-        setTimeout(function () { out.classList.remove('leave'); show(i); }, 230);
-        var top = detail.getBoundingClientRect().top;
-        if (top < 0) window.scrollBy({ top: top - 80, behavior: 'smooth' });
-      }
-      function close() {
-        var from = rects(railNums), was = current;
-        detail.hidden = true; list.hidden = false; current = -1;
-        items.forEach(function (el) { el.classList.add('in'); });
-        rows[was].scrollIntoView({ block: 'center' });
-        glide(listNums, from);
-        rows[was].focus({ preventScroll: true });
+      function setOpen(item, on) {
+        if (item.classList.contains('open') === on) return;
+        item.classList.toggle('open', on);
+        item.querySelector('.work-body').inert = !on;   // collapsed content stays out of tab order and screen readers
+        item.querySelector('.work-row').setAttribute('aria-expanded', on ? 'true' : 'false');
+        item.classList.remove('enter');
+        if (on && desktop.matches && !reduce) { void item.offsetWidth; item.classList.add('enter'); }
+        if (!on) item.pinned = false;
       }
 
-      rows.forEach(function (r) { r.addEventListener('click', function () { open(+r.dataset.open); }); });
-      railNums.forEach(function (b) { b.addEventListener('click', function () { go(+b.dataset.go); }); });
-      detail.querySelector('.work-back').addEventListener('click', close);
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && current > -1) close(); });
+      items.forEach(function (item) {
+        var row = item.querySelector('.work-row'), timer;
+        item.querySelector('.work-body').inert = true;
+        // hover intent: a short pause so sweeping the mouse across rows doesn't open them all
+        item.addEventListener('mouseenter', function () {
+          if (!desktop.matches) return;
+          clearTimeout(timer);
+          timer = setTimeout(function () { setOpen(item, true); }, 140);
+        });
+        item.addEventListener('mouseleave', function () {
+          if (!desktop.matches) return;
+          clearTimeout(timer);
+          if (!item.pinned) setOpen(item, false);
+        });
+        row.addEventListener('click', function () {
+          if (desktop.matches && item.classList.contains('open') && !item.pinned && row.matches(':hover')) { item.pinned = true; return; }
+          var on = !item.classList.contains('open');
+          setOpen(item, on);
+          item.pinned = on;
+        });
+      });
     })();
   </script>
 </body>
