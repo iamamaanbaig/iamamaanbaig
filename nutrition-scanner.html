@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Product Fit Case Study</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Case study by Amaan Baig: a mobile app that scans packaged food in the supermarket and tells shoppers whether it fits their family's health needs and budget.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="Product Fit — a case study by Amaan Baig">
+<meta property="og:description" content="Nutrition detail in a way that actually helps.">
+<meta property="og:image" content="assets/case-studies/nutrition-scanner/01-problem.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* Layout: one reading column for the story, wide "boards" for the Figma slides, matching the portfolio home page. */
+  :root {
+    --bg: #000;
+    --surface: #0F0F0D;
+    --line: #262623;
+    --text: #F4F4F0;
+    --muted: #8B8B85;
+    --green: #A6F36A;
+    --red: #FF6B5E;
+    --blue: #0A66C2;
+    --blue-hover: #1A7ADB;
+    --board: #FFFFFF;
+
+    --sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+
+    --measure: 40rem;
+    --wide: 72rem;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans); font-size: 17px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; height: auto; }
+  ::selection { background: var(--green); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { max-width: var(--wide); margin: 0 auto; }
+  .col { max-width: var(--measure); }
+
+  /* ---------- Header ---------- */
+  .nav {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding-block: clamp(20px, 3vw, 40px);
+  }
+  .brand { font-weight: 500; font-size: clamp(16px, 1.6vw, 22px); letter-spacing: .01em; text-decoration: none; }
+  .pill {
+    display: inline-flex; align-items: center; gap: .5em;
+    background: var(--blue); color: #fff; text-decoration: none;
+    padding: .45em 1.1em; border-radius: 999px; font-size: 15px; font-weight: 500;
+    transition: background .2s, transform .2s var(--ease);
+  }
+  .pill:hover { background: var(--blue-hover); transform: translateY(-1px); }
+  .pill.green { background: var(--green); color: var(--bg); }
+  .pill.green:hover { background: #BCF78D; }
+
+  /* ---------- Type ---------- */
+  .eyebrow {
+    margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  }
+  h1, h2, h3 { font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-family: var(--serif); font-size: clamp(44px, 7.4vw, 104px); line-height: 1.02; letter-spacing: -.01em; }
+  h1 em, h2 em { color: var(--green); }
+  h2 { font-family: var(--serif); font-style: italic; font-size: clamp(34px, 4.6vw, 60px); line-height: 1.08; }
+  h3 { font-size: clamp(22px, 2.2vw, 28px); font-weight: 500; line-height: 1.25; }
+  h3 .q { display: block; margin-top: 4px; font-size: 15px; font-weight: 500; color: var(--green); }
+  p { margin: 0; }
+  .lede { font-size: clamp(19px, 1.8vw, 23px); line-height: 1.5; }
+  .muted { color: var(--muted); }
+
+  /* ---------- Hero ---------- */
+  .hero { display: grid; gap: 28px; padding-block: clamp(40px, 7vw, 96px) 40px; }
+  .hero .lede { max-width: 44rem; }
+  .facts {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0;
+    margin: 12px 0 0; border-top: 1px solid var(--line);
+  }
+  .facts div { padding: 16px 16px 0 0; min-width: 0; }
+  .facts dt { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .facts dd { margin: 4px 0 0; font-size: 15px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  /* ---------- Boards (Figma slides) ---------- */
+  .board { margin: 0; }
+  .board a { display: block; border-radius: 14px; overflow: hidden; background: var(--board); transition: transform .35s var(--ease); }
+  .board a:hover { transform: translateY(-3px); }
+  .board img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .board figcaption { margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+  /* ---------- Sections ---------- */
+  section { padding-block: clamp(56px, 8vw, 112px); border-top: 1px solid var(--line); display: grid; gap: 32px; }
+  .section-head { display: grid; gap: 14px; }
+
+  .questions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .question { padding: 28px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px; align-content: start; }
+  .question .tag { font-size: 13px; color: var(--green); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .question p { font-family: var(--serif); font-size: clamp(22px, 2.2vw, 28px); line-height: 1.25; }
+
+  .context { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .context div { display: grid; gap: 6px; align-content: start; }
+  .context strong { font-weight: 600; }
+
+  /* Feature: text beside a board */
+  .feature { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  .feature + .feature { margin-top: clamp(32px, 5vw, 64px); }
+  .feature .copy { display: grid; gap: 14px; }
+  .step { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+
+  /* Personalization: the label vs. what the app says */
+  .labels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .label-card { border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 10px; align-content: start; background: var(--surface); }
+  .label-card header { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .mark { width: 20px; height: 20px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 12px; line-height: 1; flex: none; }
+  .no .mark { border: 1.5px solid var(--red); color: var(--red); }
+  .yes .mark { background: var(--green); color: var(--bg); }
+  .yes { border-color: var(--green); }
+  .nutr { margin: 0; padding: 0; list-style: none; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .nutr li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; color: var(--muted); }
+  .nutr b { color: var(--text); font-weight: 500; }
+  .note { font-size: 14px; line-height: 1.45; padding: 10px 12px; border-radius: 8px; background: #1A1A17; }
+  .yes .note { background: rgba(166, 243, 106, .12); color: var(--text); }
+  .label-card .verdict { font-size: 14px; color: var(--muted); }
+
+  /* Findings */
+  .findings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .finding { padding: 28px; border-radius: 14px; border: 1px solid var(--line); display: grid; gap: 14px; align-content: start; }
+  .finding .num { font-family: var(--serif); font-size: 56px; line-height: 1; color: var(--muted); }
+  .finding .arrow { color: var(--green); }
+
+  /* Layout priority list */
+  .priority { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; counter-reset: p; }
+  .priority li { counter-increment: p; display: grid; grid-template-columns: 2.4em minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .priority li::before { content: counter(p, decimal-leading-zero); color: var(--green); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 14px; padding-top: 2px; }
+  .priority.plain li::before { content: "—"; }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+
+  /* Takeaways */
+  .takeaways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .takeaways div { display: grid; gap: 8px; align-content: start; }
+
+  /* Closing */
+  .cta { text-align: left; }
+  .cta h2 { font-size: clamp(40px, 6vw, 80px); }
+  footer { padding-block: 32px 48px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; font-size: 14px; color: var(--muted); }
+  footer a { text-decoration: none; }
+  footer a:hover { color: var(--green); }
+
+  /* Load-in: starts visible, only shifts */
+  .rise { animation: rise .8s var(--ease) both; animation-delay: calc(var(--d, 0) * 90ms); }
+  @keyframes rise { from { transform: translateY(14px); opacity: .001; } }
+
+  @media (max-width: 860px) {
+    .feature, .split { grid-template-columns: minmax(0, 1fr); }
+    .feature .board { order: -1; }
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .context, .takeaways, .labels { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .questions, .findings { grid-template-columns: minmax(0, 1fr); }
+    .nav .pill { font-size: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="nav">
+    <a class="brand" href="index.html">AMAAN BAIG.</a>
+    <a class="pill" href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">Get in touch on LinkedIn</a>
+  </header>
+
+  <main>
+    <!-- ================= Hero ================= -->
+    <div class="hero">
+      <p class="eyebrow rise">Case study · Mobile app · Grocery &amp; health</p>
+      <h1 class="rise" style="--d:1">Nutrition detail in a way that <em>actually helps.</em></h1>
+      <p class="lede rise" style="--d:2">A mobile app that scans a packaged food product in the supermarket aisle and tells shoppers, in one glance, whether it fits the health needs and budget of the people they are buying for.</p>
+      <dl class="facts rise" style="--d:3">
+        <div><dt>Role</dt><dd>UX research &amp; UI design</dd></div>
+        <div><dt>Platform</dt><dd>iOS app</dd></div>
+        <div><dt>Context</dt><dd>In-store shopping at a smart supermarket</dd></div>
+        <div><dt>Deliverable</dt><dd>Interactive Figma prototype</dd></div>
+      </dl>
+      <div class="actions rise" style="--d:4">
+        <a class="pill green" href="https://www.figma.com/proto/xZ21rYin3YefJjIX04gPzn/Smart-package-food-app?node-id=203-702&amp;p=f&amp;t=pQzqAdCVfpUNyCbQ-1&amp;scaling=scale-down&amp;content-scaling=fixed&amp;page-id=203%3A701&amp;starting-point-node-id=203%3A702" target="_blank" rel="noopener">Open the prototype ↗</a>
+        <span class="muted">About 6 minutes to read</span>
+      </div>
+    </div>
+
+    <figure class="board rise" style="--d:5">
+      <a href="assets/case-studies/nutrition-scanner/01-problem.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/01-problem.webp" width="1600" height="900" alt="The Product Details screen: a scanned Spaghetti Bolognese with a discounted price badge, a Product Fit panel showing three green checks for Good for Health, Weight Loss Goal and No Harmful Content, better matches below and an Ask me panel."></a>
+      <figcaption>The product screen after a scan. The verdict comes first; the numbers are one tap away.</figcaption>
+    </figure>
+
+    <!-- ================= Problem ================= -->
+    <section id="problem">
+      <div class="section-head col">
+        <p class="eyebrow">The problem</p>
+        <h2>The label lists numbers. Shoppers need a decision.</h2>
+      </div>
+      <div class="col" style="display:grid;gap:16px">
+        <p>A nutrition label tells you a product has 8mg of calcium and 235mg of potassium. It doesn't tell you whether that is good for <em>you</em>, for your son who is growing, or for your dad who is watching his cholesterol. Shoppers are left to do that maths in the aisle, often while juggling a budget and a basket.</p>
+        <p>Scanning apps exist, but most of them repeat the label on a screen. I wanted to design one that answers the question the shopper is really asking.</p>
+      </div>
+      <div class="context">
+        <div><strong>Shopping for others</strong><p class="muted">People buy for a household with different, sometimes conflicting, health needs.</p></div>
+        <div><strong>Watching the budget</strong><p class="muted">A healthy choice that blows the budget isn't a choice the shopper will make.</p></div>
+        <div><strong>One free hand</strong><p class="muted">In the aisle the product is in one hand, so the phone has to work with the other.</p></div>
+      </div>
+      <div class="questions">
+        <div class="question"><span class="tag">Question 1</span><p>How will a user identify the right product that fits their nutrition goals?</p></div>
+        <div class="question"><span class="tag">Question 2</span><p>How will a user compare products?</p></div>
+      </div>
+    </section>
+
+    <!-- ================= Part 1 ================= -->
+    <section id="fit">
+      <div class="section-head col">
+        <p class="eyebrow">Part 1 · Finding the right fit</p>
+        <h2>From scan to a clear yes or no</h2>
+        <p class="muted">Five features work together, each answering one thing the shopper wants to know.</p>
+      </div>
+
+      <div class="feature">
+        <div class="copy">
+          <span class="step">Before the scan</span>
+          <h3>Set goals</h3>
+          <p>On the home screen the shopper picks who they are shopping for (Self, Family, or a custom group) and can set an optional budget. Every scan is then judged against those profiles, so results are personal from the first product.</p>
+          <p class="muted">Both fields are optional. A shopper in a hurry can go straight to the big scan button.</p>
+        </div>
+        <figure class="board">
+          <a href="assets/case-studies/nutrition-scanner/03-set-goals.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/03-set-goals.webp" width="1600" height="900" loading="lazy" alt="Two screens: the welcome screen with Shopping for chips (Self, Family, add) and a budget slider above a scan button, and the camera view with a QR scanning frame over a supermarket aisle."></a>
+        </figure>
+      </div>
+
+      <div class="feature">
+        <div class="copy">
+          <span class="step">The verdict</span>
+          <h3>Product fit<span class="q">Does the product fit the user's needs?</span></h3>
+          <p>The app checks the product against the health needs of the user and their loved ones and shows the answer as three simple checks: good for health, fits the weight-loss goal, no harmful content. When something fails, it says why and for whom, such as "Raju is allergic: ingredients contain nuts".</p>
+          <p>The price badge reacts too. When the price and offer fit the user's needs it becomes more visually appealing, which creates a small positive moment at the point of decision.</p>
+        </div>
+        <figure class="board">
+          <a href="assets/case-studies/nutrition-scanner/04-product-fit.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/04-product-fit.webp" width="1600" height="900" loading="lazy" alt="Product Fit slide: a product that fits shows three green checks and a green price badge; one that doesn't shows red crosses with reasons such as Raju is allergic and Not suitable for dad."></a>
+        </figure>
+      </div>
+
+      <div class="feature">
+        <div class="copy">
+          <span class="step">The why</span>
+          <h3>Personalization<span class="q">How does the product benefit the user?</span></h3>
+          <p>The app doesn't stop at "good" or "bad". It explains each benefit in terms of the people in the shopper's profile, so they understand why the product is right for them. I explored three levels of detail for the same label.</p>
+        </div>
+        <figure class="board">
+          <a href="assets/case-studies/nutrition-scanner/05-personalization.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/05-personalization.webp" width="1600" height="900" loading="lazy" alt="Personalization slide comparing three nutrition panels labelled Not this, Not even this and This, alongside the Ask me panel listing benefits for dad and Raju."></a>
+        </figure>
+      </div>
+
+      <div class="labels" aria-label="Three ways to present the same nutrition label">
+        <div class="label-card no">
+          <header><span class="mark" aria-hidden="true">✕</span>Not this</header>
+          <ul class="nutr">
+            <li><b>Proteins</b><span>44mg</span></li>
+            <li>Vitamin D 2mcg<span>10%</span></li>
+            <li>Vitamin E 260mg<span>20%</span></li>
+            <li>Calcium 8mg<span>45%</span></li>
+            <li>Potassium 235mg<span>6%</span></li>
+          </ul>
+          <p class="verdict">Raw data. Accurate, but the shopper still has to work out what it means.</p>
+        </div>
+        <div class="label-card no">
+          <header><span class="mark" aria-hidden="true">✕</span>Not even this</header>
+          <div class="note">15% calcium is good for health.</div>
+          <div class="note">Potassium-rich product.</div>
+          <p class="verdict">Generic advice. True for everyone, so it helps no one decide.</p>
+        </div>
+        <div class="label-card yes">
+          <header><span class="mark" aria-hidden="true">✓</span>This</header>
+          <div class="note">15% more calcium than average, good for Raju's growth needs.</div>
+          <div class="note">More potassium than average is good for a mother-to-be.</div>
+          <p class="verdict">Personal. The benefit is tied to a real person in the household.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="copy">
+          <span class="step">The alternative</span>
+          <h3>Suggest<span class="q">Don't settle for good, go for better.</span></h3>
+          <p>Under every product sits a row of Better Matches: similar products that fit the user's needs more closely, ranked with value metrics. Icons on each card show whose needs it meets (for example "+2" more family members), and the price shows the saving.</p>
+          <p>The shopper isn't only told whether a product is right. They can see the best option on the shelf and get value for money.</p>
+        </div>
+        <figure class="board">
+          <a href="assets/case-studies/nutrition-scanner/06-suggest.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/06-suggest.webp" width="1600" height="900" loading="lazy" alt="Suggest slide: the Product Fit screen with a Better Matches carousel; cards show family-member icons and discounted prices."></a>
+        </figure>
+      </div>
+
+      <div class="feature">
+        <div class="copy">
+          <span class="step">Going deeper</span>
+          <h3>Ask &amp; learn<span class="q">Don't just access, learn.</span></h3>
+          <p>"Ask me" lets the shopper type or speak a question about the product: "Are there any allergens?", "Show me products with similar benefits but less expensive", or "How does 15% calcium help Raju's growth?". Answers are personal and link to trusted reading.</p>
+          <p>Voice input matters here because one hand is busy. For the business, the questions people ask are also a direct signal for building better products.</p>
+        </div>
+        <figure class="board">
+          <a href="assets/case-studies/nutrition-scanner/07-ask-learn.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/07-ask-learn.webp" width="1600" height="900" loading="lazy" alt="Ask and Learn slide: an Ask me sheet with a microphone, and an answer explaining that a calcium-rich diet protects children against bone loss, with a link to Nemours Children's Health."></a>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= Part 2 ================= -->
+    <section id="compare">
+      <div class="section-head col">
+        <p class="eyebrow">Part 2 · Comparing products</p>
+        <h2>Compare what fits, not everything on the shelf</h2>
+      </div>
+
+      <div class="feature">
+        <div class="copy">
+          <span class="step">Getting products in</span>
+          <h3>Selection experience</h3>
+          <p>I looked at how shoppers actually pick the products they compare and designed an entry point for each case:</p>
+          <ol class="priority">
+            <li>Scan the product they are holding.</li>
+            <li>Pick from Best Matches, similar products that fit their needs better.</li>
+            <li>Pick from Viewed Products, items they looked at and put back on the shelf.</li>
+          </ol>
+          <p class="muted">This needed an understanding of how a smart store works: how shoppers add and keep track of items in their cart as they walk.</p>
+        </div>
+        <figure class="board">
+          <a href="assets/case-studies/nutrition-scanner/09-selection.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/09-selection.webp" width="1600" height="900" loading="lazy" alt="Selection slide: a Compare sheet with Scan to compare, and tabs for Best Matches and Viewed Products; a second screen shows two products added and a Compare button."></a>
+        </figure>
+      </div>
+
+      <div class="feature">
+        <div class="copy">
+          <span class="step">The side-by-side</span>
+          <h3>Comparison<span class="q">Which product is more beneficial for my needs?</span></h3>
+          <p>Shoppers only compare products that already fit, so the comparison answers "which fits better". Three layers do that:</p>
+          <ul class="priority plain">
+            <li>"Beneficial to you": one bar per product showing the combined value of all its benefits for the user's needs.</li>
+            <li>Health benefits: icons for every person each product helps.</li>
+            <li>Benefits value: how much each single benefit is worth to each person.</li>
+          </ul>
+        </div>
+        <figure class="board">
+          <a href="assets/case-studies/nutrition-scanner/10-comparison.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/10-comparison.webp" width="1600" height="900" loading="lazy" alt="Comparison slide: three products side by side with a Beneficial to you bar chart, health benefit icons, per-benefit value bars and serving size."></a>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= Findings ================= -->
+    <section id="findings">
+      <div class="section-head col">
+        <p class="eyebrow">What I learned along the way</p>
+        <h2>Two findings that changed the design</h2>
+      </div>
+      <div class="findings">
+        <div class="finding">
+          <span class="num" aria-hidden="true">1</span>
+          <h3>Walking back to the shelf</h3>
+          <p class="muted">Shoppers went back to find a product they had put back, so they could compare it with the one in their hand.</p>
+          <p><span class="arrow">→</span> I added a History of scanned products, so nobody has to find and scan an item twice.</p>
+        </div>
+        <div class="finding">
+          <span class="num" aria-hidden="true">2</span>
+          <h3>Too many options</h3>
+          <p class="muted">Shoppers felt overwhelmed when they could compare any number of products.</p>
+          <p><span class="arrow">→</span> I limited comparison to three products, which kept the side-by-side readable on a phone.</p>
+        </div>
+      </div>
+      <figure class="board">
+        <a href="assets/case-studies/nutrition-scanner/11-findings.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/11-findings.webp" width="1600" height="900" loading="lazy" alt="Findings slide: the History button and Viewed Products tab circled, and a Compare sheet that says you can compare up to 3 products."></a>
+      </figure>
+    </section>
+
+    <!-- ================= One hand ================= -->
+    <section id="one-hand">
+      <div class="section-head col">
+        <p class="eyebrow">Designing for the aisle</p>
+        <h2>One hand holds the product. The other holds the phone.</h2>
+      </div>
+      <div class="split">
+        <div style="display:grid;gap:16px">
+          <p>Most people hold a phone in one hand and tap and type with the other. In a supermarket almost every shopper is holding a product in one hand, so the phone has to be used with the thumb of the other.</p>
+          <p>I split the screen by thumb reach. The least used, view-only content sits at the top, which is hard to reach. The most used actions sit in the comfortable lower area. The layout then guides the eye in this order:</p>
+        </div>
+        <ol class="priority">
+          <li>Product basic info.</li>
+          <li>Price, coloured to show whether it is within budget.</li>
+          <li>Product image.</li>
+          <li>Compare, easy to find right next to the product.</li>
+          <li>Filter to switch results between people.</li>
+          <li>The result: does it fit the health needs of the selected people?</li>
+          <li>Nutrition details, one tap away.</li>
+          <li>Suggestions based on the user's needs and shopping history.</li>
+          <li>Ask me, to understand the product.</li>
+        </ol>
+      </div>
+      <p class="col muted">The running cart total stays visible in the bottom bar. People tend to lose track while shopping, and seeing the amount helps them make mindful decisions.</p>
+      <figure class="board">
+        <a href="assets/case-studies/nutrition-scanner/12-one-hand.webp" target="_blank" rel="noopener"><img src="assets/case-studies/nutrition-scanner/12-one-hand.webp" width="1600" height="900" loading="lazy" alt="Layout strategy slide: the product screen divided into a red zone for least used features at the top and a green zone for most used features below, with a thumb-reach diagram and the numbered eye-guiding order."></a>
+      </figure>
+    </section>
+
+    <!-- ================= Takeaways ================= -->
+    <section id="takeaways">
+      <div class="section-head col">
+        <p class="eyebrow">Takeaways</p>
+        <h2>What this project taught me</h2>
+      </div>
+      <div class="takeaways">
+        <div><h3>Answer the question, then show the data</h3><p class="muted">Leading with a clear verdict and keeping the numbers one tap away made the app useful in seconds instead of minutes.</p></div>
+        <div><h3>Personal beats correct</h3><p class="muted">"Good for Raju's growth" lands in a way "15% calcium" never does. Tying information to real people is what makes it helpful.</p></div>
+        <div><h3>Context shapes the layout</h3><p class="muted">Watching how people shop, with one hand busy and products being put back, drove the history feature, the compare limit and the thumb-first layout.</p></div>
+      </div>
+    </section>
+
+    <!-- ================= CTA ================= -->
+    <section class="cta" id="prototype">
+      <h2>Try it <em>yourself.</em></h2>
+      <p class="col lede">Walk through the full flow, from setting goals and scanning to comparing products and asking questions, in the interactive prototype.</p>
+      <div class="actions">
+        <a class="pill green" href="https://www.figma.com/proto/xZ21rYin3YefJjIX04gPzn/Smart-package-food-app?node-id=203-702&amp;p=f&amp;t=pQzqAdCVfpUNyCbQ-1&amp;scaling=scale-down&amp;content-scaling=fixed&amp;page-id=203%3A701&amp;starting-point-node-id=203%3A702" target="_blank" rel="noopener">Open the prototype ↗</a>
+        <a class="pill" href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">Talk to me on LinkedIn</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Amaan Baig · User Experience Designer</span>
+    <a href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">linkedin.com/in/iamamaanbaig</a>
+  </footer>
+</div>
+</body>
+</html>
