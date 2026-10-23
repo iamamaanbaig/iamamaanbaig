@@ -31,7 +31,7 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
     body {
       margin: 0; min-height: 100svh;
       display: flex; flex-direction: column;
@@ -145,6 +145,72 @@
     }
     .clients img { height: 4.1vw; width: auto; mix-blend-mode: screen; /* black logo backgrounds disappear */ }
 
+
+    /* ---------- Selected work ---------- */
+    .work { padding: clamp(64px, 9vw, 160px) var(--gutter) 0; border-top: 1px solid #1c1c1a; }
+    .work-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: clamp(32px, 5vw, 88px); }
+    .eyebrow { margin: 0 0 1.2em; font-size: clamp(13px, 1.1vw, 20px); color: var(--muted); letter-spacing: .02em; }
+    .eyebrow b { font-weight: 500; color: var(--green); }
+    .work-title { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6.4vw, 128px); line-height: 1.02; letter-spacing: -.01em; }
+    .work-title em { color: var(--green); }
+    .work-note { flex: none; max-width: 22ch; margin: 0; color: var(--muted); font-size: clamp(14px, 1.15vw, 21px); line-height: 1.45; }
+
+    .cases { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid #262624; }
+    .case {
+      display: grid; align-items: center; gap: 0 2.4vw;
+      grid-template-columns: 6vw 1fr 19vw 5vw;
+      padding: clamp(22px, 2.6vw, 48px) 0;
+      border-top: 1px solid #262624;
+      transition: opacity .35s var(--ease);
+    }
+    .case-num { font-family: var(--serif); font-style: italic; font-size: clamp(16px, 1.6vw, 30px); color: var(--muted); }
+    .case-name {
+      display: block; font-family: var(--serif); font-size: clamp(34px, 5.2vw, 104px); line-height: 1.05; letter-spacing: -.01em;
+      transition: transform .5s var(--ease), color .3s;
+    }
+    .case-line { display: block; margin-top: .5em; color: var(--muted); font-size: clamp(14px, 1.2vw, 22px); max-width: 44ch; }
+    .case-meta { display: flex; flex-direction: column; gap: .35em; font-size: clamp(13px, 1.05vw, 19px); }
+    .case-meta span + span { color: var(--muted); }
+    .case-go {
+      justify-self: end; display: grid; place-items: center;
+      width: clamp(44px, 4.4vw, 84px); aspect-ratio: 1; border-radius: 50%;
+      border: 1px solid #3a3a37; transition: background .3s, border-color .3s, transform .5s var(--ease);
+    }
+    .case-go svg { width: 38%; transition: transform .5s var(--ease); }
+    .case-thumb { display: none; }
+
+    /* Hovering one case quiets the rest; the active title slips into italic like "AI for speed" */
+    @media (hover: hover) {
+      .cases:hover .case { opacity: .32; }
+      .cases .case:hover { opacity: 1; }
+      .case:hover .case-name { font-style: italic; transform: translateX(1.2vw); }
+      .case:hover .case-go { background: var(--green); border-color: var(--green); color: var(--bg); }
+      .case:hover .case-go svg { transform: rotate(45deg); }
+    }
+    .case:focus-visible { outline-offset: 6px; }
+
+    /* Preview pill that trails the cursor — same shape as the portrait in the hero */
+    .preview {
+      position: fixed; left: 0; top: 0; z-index: 5;
+      width: 27vw; aspect-ratio: 604 / 406; margin: calc(27vw * -406 / 604 / 2) 0 0 -13.5vw;
+      border-radius: 999px; overflow: hidden; pointer-events: none;
+      opacity: 0; scale: .5; transform: translate3d(var(--x, 50vw), var(--y, 50vh), 0) rotate(var(--r, 0deg));
+      transition: opacity .3s, scale .5s var(--ease);
+    }
+    .preview.on { opacity: 1; scale: 1; }
+    .preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s; }
+    .preview img.on { opacity: 1; }
+
+    /* ---------- Footer ---------- */
+    .outro { padding: clamp(80px, 11vw, 200px) var(--gutter) clamp(28px, 3vw, 56px); }
+    .outro-line { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 7.4vw, 148px); line-height: 1.02; letter-spacing: -.01em; }
+    .outro-line em { color: var(--green); }
+    .outro-cta { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; margin-top: clamp(24px, 3vw, 56px); font-size: clamp(16px, 2.1vw, 42px); }
+    .fine { display: flex; justify-content: space-between; gap: 16px; margin-top: clamp(64px, 9vw, 160px); color: var(--muted); font-size: 13px; }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
+    .reveal.in { opacity: 1; transform: none; }
+
     /* Load-in */
     .rise { opacity: 0; transform: translateY(18px); animation: rise .9s var(--ease) forwards; animation-delay: calc(var(--d, 0) * 110ms); }
     @keyframes rise { to { opacity: 1; transform: none; } }
@@ -162,14 +228,23 @@
       .judgment .display { font-size: 15vw; }
       .clients { flex-wrap: wrap; justify-content: center; gap: 18px 28px; padding-top: 48px; }
       .clients img { height: 30px; }
+      .work-head { flex-direction: column; align-items: flex-start; }
+      .case { grid-template-columns: 1fr auto; gap: 14px 16px; padding: 28px 0 32px; }
+      .case-thumb { display: block; grid-column: 1 / -1; aspect-ratio: 604 / 406; border-radius: 999px; overflow: hidden; background: #111; }
+      .case-thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .case-num { grid-column: 1; grid-row: 2; }
+      .case-go { grid-column: 2; grid-row: 2; }
+      .case-body, .case-meta { grid-column: 1 / -1; }
+      .case-meta { flex-direction: row; flex-wrap: wrap; gap: 4px 12px; }
+      .preview { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
-      .rise { opacity: 1; transform: none; }
+      .rise, .reveal { opacity: 1; transform: none; }
     }
   </style>
 </head>
-<body>
+<body id="top">
   <header class="nav">
     <a class="brand" href="./" aria-label="Amaan Baig, home">AMAAN BAIG.</a>
     <nav class="social" aria-label="Contact">
@@ -255,6 +330,79 @@
     <li><img src="assets/logos/marlabs.png" alt="Marlabs"></li>
   </ul>
 
+  <section class="work" id="work" aria-labelledby="work-title">
+    <div class="work-head reveal">
+      <div>
+        <p class="eyebrow"><b>(04)</b>&nbsp; Selected case studies</p>
+        <h2 class="work-title" id="work-title">Complicated software,<br><em>made obvious.</em></h2>
+      </div>
+      <p class="work-note">Enterprise tools, operator consoles and one grocery aisle. Each opens as an interactive Figma case study.</p>
+    </div>
+
+    <ol class="cases" id="cases">
+      <li class="reveal">
+        <a class="case" href="https://www.figma.com/proto/BqtJK7eRdOptyFGzfkC5Pi/LaSalle's-Global-Incentive-Fee-Awards?node-id=1-2&amp;t=FmVHeYi8r2axEgto-0&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/incentive-fee.jpg">
+          <span class="case-thumb"><img src="assets/work/incentive-fee.jpg" alt="Global Incentive Fee Awards dashboard on a laptop" loading="lazy" width="1600" height="1085"></span>
+          <span class="case-num">01</span>
+          <span class="case-body">
+            <span class="case-name">Global Incentive Fee</span>
+            <span class="case-line">Allocating and approving incentive awards across funds, countries and award types, on one screen.</span>
+          </span>
+          <span class="case-meta"><span>LaSalle · JLL</span><span>SaaS · Web app</span></span>
+          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+        </a>
+      </li>
+      <li class="reveal">
+        <a class="case" href="https://www.figma.com/proto/nhOVX1y1Do1PslJwK6GAfn/K8-resources---bechance?node-id=4-5&amp;t=WUQCd58DIYmqkSFc-1&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/k8-resources.jpg">
+          <span class="case-thumb"><img src="assets/work/k8-resources.jpg" alt="Nokia Cloud Operations Manager showing Kubernetes nodes" loading="lazy" width="1600" height="1085"></span>
+          <span class="case-num">02</span>
+          <span class="case-body">
+            <span class="case-name">K8 Resources</span>
+            <span class="case-line">Clusters, namespaces and role bindings for cloud operators, without dropping to the command line.</span>
+          </span>
+          <span class="case-meta"><span>Nokia</span><span>SaaS · Operator console</span></span>
+          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+        </a>
+      </li>
+      <li class="reveal">
+        <a class="case" href="https://www.figma.com/proto/3DqieWCERJuFxGJdnibibN/Behance---Master-Fee-Template?node-id=114-6504&amp;t=RHaSL8br9CtpbQKY-1&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/master-fee.jpg">
+          <span class="case-thumb"><img src="assets/work/master-fee.jpg" alt="Excel Edge fee master template screen on a laptop" loading="lazy" width="1600" height="1085"></span>
+          <span class="case-num">03</span>
+          <span class="case-body">
+            <span class="case-name">Master Fee Template</span>
+            <span class="case-line">A school's fee structure and payment schedules, set up once and reused for every class.</span>
+          </span>
+          <span class="case-meta"><span>Excel Edge</span><span>SaaS · School ERP</span></span>
+          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+        </a>
+      </li>
+      <li class="reveal">
+        <a class="case" href="https://www.figma.com/proto/NQb8fKU5flfeKe854x19Uv/Behance---Smart-Food-product?node-id=29-202&amp;t=IdI8MQFFGKFoBM61-1&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/smart-food.jpg">
+          <span class="case-thumb"><img src="assets/work/smart-food.jpg" alt="Smart Food app screens comparing packaged meals" loading="lazy" width="1600" height="1085"></span>
+          <span class="case-num">04</span>
+          <span class="case-body">
+            <span class="case-name">Smart Food</span>
+            <span class="case-line">Comparing packaged meals by what they do for you and your family, not just by price.</span>
+          </span>
+          <span class="case-meta"><span>Product design</span><span>Mobile app</span></span>
+          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+        </a>
+      </li>
+    </ol>
+  </section>
+
+  <div class="preview" id="preview" aria-hidden="true"></div>
+
+  <footer class="outro">
+    <p class="outro-line reveal">Got something<br><em>complicated?</em></p>
+    <p class="outro-cta reveal">
+      <span>Let's make it obvious, on</span>
+      <a class="pill" href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">Linkedin</a>
+      <a class="handle" href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">@iamamaanbaig</a>
+    </p>
+    <div class="fine"><span>© Amaan Baig</span><a class="handle" href="#top">Back to top ↑</a></div>
+  </footer>
+
   <script>
     (function () {
       /* Carousel: builds 8 curved cards sized to the ring; the spin itself is a CSS animation */
@@ -293,6 +441,44 @@
         lastW = window.innerWidth;
         clearTimeout(t); t = setTimeout(buildOrbit, 120);
       });
+    })();
+
+    (function () {
+      /* Scroll reveal for the work list and footer */
+      var items = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+        }, { rootMargin: '0px 0px -8% 0px' });
+        items.forEach(function (el) { io.observe(el); });
+      } else items.forEach(function (el) { el.classList.add('in'); });
+
+      /* Cursor preview: one pill, images cross-fade as you move between cases */
+      var preview = document.getElementById('preview');
+      if (!window.matchMedia('(hover: hover) and (min-width: 761px)').matches) return;
+      var imgs = {}, x = innerWidth / 2, y = innerHeight / 2, cx = x, cy = y, raf;
+      document.querySelectorAll('.case').forEach(function (a) {
+        var src = a.dataset.img, img = new Image();
+        img.src = src; img.alt = ''; preview.appendChild(img); imgs[src] = img;
+        a.addEventListener('mouseenter', function () {
+          for (var k in imgs) imgs[k].classList.toggle('on', k === src);
+          preview.classList.add('on');
+        });
+      });
+      var list = document.getElementById('cases');
+      list.addEventListener('mouseleave', function () { preview.classList.remove('on'); });
+      addEventListener('mousemove', function (e) {
+        x = e.clientX; y = e.clientY;
+        if (!raf) raf = requestAnimationFrame(tick);
+      });
+      function tick() {
+        var dx = x - cx;
+        cx += dx * .14; cy += (y - cy) * .14;   // trail behind the cursor
+        preview.style.setProperty('--x', cx.toFixed(1) + 'px');
+        preview.style.setProperty('--y', cy.toFixed(1) + 'px');
+        preview.style.setProperty('--r', Math.max(-8, Math.min(8, dx * .04)).toFixed(2) + 'deg');   // lean into the motion
+        raf = Math.abs(dx) + Math.abs(y - cy) > .5 ? requestAnimationFrame(tick) : 0;
+      }
     })();
   </script>
 </body>
