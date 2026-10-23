@@ -12,7 +12,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&family=Playfair+Display:ital@0;1&family=Inter:wght@400;500;600&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -146,67 +146,93 @@
     .clients img { height: 4.1vw; width: auto; mix-blend-mode: screen; /* black logo backgrounds disappear */ }
 
 
-    /* ---------- Selected work ---------- */
-    .work { padding: clamp(64px, 9vw, 160px) var(--gutter) 0; border-top: 1px solid #1c1c1a; }
-    .work-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: clamp(32px, 5vw, 88px); }
-    .eyebrow { margin: 0 0 1.2em; font-size: clamp(13px, 1.1vw, 20px); color: var(--muted); letter-spacing: .02em; }
-    .eyebrow b { font-weight: 500; color: var(--green); }
-    .work-title { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 6.4vw, 128px); line-height: 1.02; letter-spacing: -.01em; }
-    .work-title em { color: var(--green); }
-    .work-note { flex: none; max-width: 22ch; margin: 0; color: var(--muted); font-size: clamp(14px, 1.15vw, 21px); line-height: 1.45; }
+    /* ---------- Case studies: a light "sheet" in the style of the case-study documents ---------- */
+    .sheet {
+      --ink: #1F2430; --ink-2: #5B6170; --ink-3: #8A90A0; --line: #E6E8EE; --band: #F7F8FB;
+      --accent: #3D63DD; --hl: #FFF27A;
+      position: relative; background: #fff; color: var(--ink);
+      border-radius: clamp(24px, 3vw, 48px) clamp(24px, 3vw, 48px) 0 0;
+      font-family: "Inter", var(--sans);
+    }
+    .sheet ::selection { background: var(--hl); color: var(--ink); }
+    .sheet :focus-visible { outline-color: var(--accent); }
+    .sheet-head { padding: clamp(72px, 8vw, 140px) var(--gutter) clamp(40px, 5vw, 80px); text-align: center; }
+    .sheet-title { margin: 0; font-family: "Poppins", var(--sans); font-weight: 400; font-size: clamp(32px, 3.6vw, 64px); letter-spacing: -.01em; line-height: 1.15; }
+    .sheet-sub { margin: .5em 0 0; color: var(--ink-3); font-size: clamp(15px, 1.35vw, 22px); }
 
-    .cases { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid #262624; }
-    .case {
-      display: grid; align-items: center; gap: 0 2.4vw;
-      grid-template-columns: 6vw 1fr 19vw 5vw;
-      padding: clamp(22px, 2.6vw, 48px) 0;
-      border-top: 1px solid #262624;
-      transition: opacity .35s var(--ease);
+    /* Project index, like the "Project Engagement" timeline */
+    .index { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 2vw; max-width: 1180px; margin: clamp(40px, 4.5vw, 72px) auto 0; padding: 0; list-style: none; text-align: left; }
+    .index::before { content: ""; position: absolute; left: 0; right: 14px; top: 64px; height: 1.5px; background: var(--ink); }
+    .index::after { content: ""; position: absolute; right: 2px; top: 59px; border: 6px solid transparent; border-left: 12px solid var(--ink); border-right: 0; }
+    .index li { display: flex; flex-direction: column; }
+    .index small { color: var(--ink-3); font-size: 13px; margin-bottom: 8px; }
+    .index a {
+      align-self: flex-start; padding: 7px 16px; border-radius: 10px;
+      background: var(--c); color: #fff; font-size: 14px; font-weight: 500; white-space: nowrap;
+      transition: transform .25s var(--ease), box-shadow .25s;
     }
-    .case-num { font-family: var(--serif); font-style: italic; font-size: clamp(16px, 1.6vw, 30px); color: var(--muted); }
-    .case-name {
-      display: block; font-family: var(--serif); font-size: clamp(34px, 5.2vw, 104px); line-height: 1.05; letter-spacing: -.01em;
-      transition: transform .5s var(--ease), color .3s;
-    }
-    .case-line { display: block; margin-top: .5em; color: var(--muted); font-size: clamp(14px, 1.2vw, 22px); max-width: 44ch; }
-    .case-meta { display: flex; flex-direction: column; gap: .35em; font-size: clamp(13px, 1.05vw, 19px); }
-    .case-meta span + span { color: var(--muted); }
-    .case-go {
-      justify-self: end; display: grid; place-items: center;
-      width: clamp(44px, 4.4vw, 84px); aspect-ratio: 1; border-radius: 50%;
-      border: 1px solid #3a3a37; transition: background .3s, border-color .3s, transform .5s var(--ease);
-    }
-    .case-go svg { width: 38%; transition: transform .5s var(--ease); }
-    .case-thumb { display: none; }
+    .index a:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -8px var(--c); }
+    .index span { margin-top: 30px; padding-left: 14px; border-left: 1.5px solid var(--ink); color: var(--ink-2); font-size: 13px; line-height: 1.5; min-height: 44px; }
 
-    /* Hovering one case quiets the rest; the active title slips into italic like "AI for speed" */
-    @media (hover: hover) {
-      .cases:hover .case { opacity: .32; }
-      .cases .case:hover { opacity: 1; }
-      .case:hover .case-name { font-style: italic; transform: translateX(1.2vw); }
-      .case:hover .case-go { background: var(--green); border-color: var(--green); color: var(--bg); }
-      .case:hover .case-go svg { transform: rotate(45deg); }
-    }
-    .case:focus-visible { outline-offset: 6px; }
+    /* One band per case study, alternating like the documents */
+    .study { padding: clamp(64px, 8vw, 140px) var(--gutter); scroll-margin-top: 0; }
+    .study:nth-child(odd) { background: var(--band); }
+    .study-in { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 5vw, 96px); align-items: center; max-width: 1440px; margin: 0 auto; }
+    .study:nth-child(even) .study-text { order: 2; }
+    .eyebrow-cs { margin: 0 0 .6em; color: var(--ink-3); font-size: 15px; }
+    .study h3 { margin: 0; font-weight: 500; font-size: clamp(34px, 3.6vw, 62px); line-height: 1.08; letter-spacing: -.02em; }
+    .study-sub { margin: .7em 0 0; max-width: 30ch; color: var(--ink-3); font-size: clamp(16px, 1.3vw, 21px); line-height: 1.45; }
+    .facts { display: grid; gap: 10px; margin: clamp(28px, 2.6vw, 44px) 0 0; font-size: 15px; }
+    .facts div { display: flex; gap: 8px; }
+    .facts dt { color: var(--ink-3); }
+    .facts dd { margin: 0; }
+    .facts .brand-c { color: var(--brand); font-weight: 600; }
 
-    /* Preview pill that trails the cursor — same shape as the portrait in the hero */
-    .preview {
-      position: fixed; left: 0; top: 0; z-index: 5;
-      width: 27vw; aspect-ratio: 604 / 406; margin: calc(27vw * -406 / 604 / 2) 0 0 -13.5vw;
-      border-radius: 999px; overflow: hidden; pointer-events: none;
-      opacity: 0; scale: .5; transform: translate3d(var(--x, 50vw), var(--y, 50vh), 0) rotate(var(--r, 0deg));
-      transition: opacity .3s, scale .5s var(--ease);
-    }
-    .preview.on { opacity: 1; scale: 1; }
-    .preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s; }
-    .preview img.on { opacity: 1; }
+    .challenge { margin: 28px 0 0; padding-left: 14px; border-left: 4px solid var(--ink); font-weight: 600; font-style: italic; font-size: 15px; line-height: 1.5; max-width: 42ch; }
+    .hl { background: linear-gradient(transparent 8%, var(--hl) 8%, var(--hl) 92%, transparent 92%); padding: 0 .2em; }
+    .q { margin: 28px 0 0; font-size: clamp(26px, 2.4vw, 40px); line-height: 1.15; letter-spacing: -.01em; }
+    .q .hl { display: inline-block; margin-top: .35em; font-size: 15px; letter-spacing: 0; }
 
-    /* ---------- Footer ---------- */
-    .outro { padding: clamp(80px, 11vw, 200px) var(--gutter) clamp(28px, 3vw, 56px); }
-    .outro-line { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 7.4vw, 148px); line-height: 1.02; letter-spacing: -.01em; }
-    .outro-line em { color: var(--green); }
-    .outro-cta { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; margin-top: clamp(24px, 3vw, 56px); font-size: clamp(16px, 2.1vw, 42px); }
-    .fine { display: flex; justify-content: space-between; gap: 16px; margin-top: clamp(64px, 9vw, 160px); color: var(--muted); font-size: 13px; }
+    .steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0; padding: 0; list-style: none; }
+    .steps li { padding: 6px 13px; border-radius: 9px; background: var(--c); color: #fff; font-size: 13px; font-weight: 500; }
+
+    .score { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 28px 0 0; max-width: 440px; }
+    .score div { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; background: #24262B; color: #fff; font-size: 15px; }
+    .score b { padding: 2px 12px; border-radius: 999px; font-weight: 500; font-size: 14px; }
+    .score .old b { background: #C9403F; }
+    .score .new b { background: #1E9E46; }
+    .score-note { margin: 10px 0 0; color: var(--ink-3); font-size: 13px; }
+
+    .proto {
+      display: inline-flex; align-items: center; gap: 10px; margin-top: clamp(32px, 3vw, 48px);
+      padding: 11px 20px 11px 22px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 500;
+      transition: background .2s, gap .3s var(--ease);
+    }
+    .proto:hover { background: #2D50C4; gap: 16px; }
+    .proto svg { width: 16px; }
+
+    /* Screens with the documents' annotation language: pins with leader lines and blue brackets */
+    .shot { position: relative; margin: 0 0 72px; }
+    .shot:has(.pin + .pin) { margin-bottom: 104px; }
+    .shot img { width: 100%; height: auto; border-radius: clamp(14px, 1.6vw, 26px); box-shadow: 0 30px 60px -36px rgba(20, 30, 60, .45); }
+    .pin { position: absolute; left: var(--x); top: var(--y); bottom: calc(-1 * var(--drop, 56px)); width: 0; border-left: 1.5px solid var(--ink); pointer-events: none; }
+    .pin::before { content: ""; position: absolute; top: -6px; left: -6.75px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2.5px solid var(--ink); }
+    .pin span { position: absolute; bottom: 0; left: 12px; white-space: nowrap; font-size: 14px; line-height: 1; transform: translateY(40%); }
+    .pin.left span { left: auto; right: 12px; }
+    .brackets { position: absolute; left: 0; right: 0; bottom: -60px; height: 60px; }
+    .brackets span { position: absolute; top: 14px; left: var(--a); width: calc(var(--b) - var(--a)); height: 14px; border: 1.5px solid var(--accent); border-top: 0; color: var(--accent); font-size: 14px; text-align: center; }
+    .brackets span::after { content: attr(data-label); position: absolute; top: 22px; left: 0; right: 0; }
+
+    /* ---------- Footer, signed off like the documents ---------- */
+    .outro { background: #fff; color: #1F2430; padding: clamp(80px, 9vw, 160px) var(--gutter) clamp(28px, 3vw, 48px); text-align: center; font-family: "Inter", var(--sans); border-top: 1px solid #E6E8EE; }
+    .outro-ask { margin: 0; color: #5B6170; font-size: clamp(16px, 1.4vw, 22px); }
+    .outro-ask a { display: inline-flex; margin-left: .4em; padding: .3em .9em; border-radius: 999px; background: var(--blue); color: #fff; transition: background .2s; }
+    .outro-ask a:hover { background: var(--blue-hover); }
+    .thanks { margin: clamp(48px, 5vw, 88px) 0 0; font-family: "Poppins", var(--sans); font-weight: 700; font-size: clamp(56px, 8.5vw, 150px); line-height: 1; letter-spacing: -.02em; color: #1E2A44; }
+    .thanks i { display: inline-block; font-style: normal; font-size: .82em; transform: translateY(-.02em); }
+    .fine { margin: clamp(24px, 2vw, 36px) 0 0; color: #8A90A0; font-size: 14px; }
+    .fine a { color: inherit; }
+    .fine a:hover { color: #1F2430; }
 
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
     .reveal.in { opacity: 1; transform: none; }
@@ -228,15 +254,15 @@
       .judgment .display { font-size: 15vw; }
       .clients { flex-wrap: wrap; justify-content: center; gap: 18px 28px; padding-top: 48px; }
       .clients img { height: 30px; }
-      .work-head { flex-direction: column; align-items: flex-start; }
-      .case { grid-template-columns: 1fr auto; gap: 14px 16px; padding: 28px 0 32px; }
-      .case-thumb { display: block; grid-column: 1 / -1; aspect-ratio: 604 / 406; border-radius: 999px; overflow: hidden; background: #111; }
-      .case-thumb img { width: 100%; height: 100%; object-fit: cover; }
-      .case-num { grid-column: 1; grid-row: 2; }
-      .case-go { grid-column: 2; grid-row: 2; }
-      .case-body, .case-meta { grid-column: 1 / -1; }
-      .case-meta { flex-direction: row; flex-wrap: wrap; gap: 4px 12px; }
-      .preview { display: none; }
+      .index { grid-template-columns: 1fr 1fr; gap: 28px 16px; }
+      .index::before, .index::after { display: none; }
+      .index span { margin-top: 14px; min-height: 0; }
+      .study-in { grid-template-columns: 1fr; }
+      .study:nth-child(even) .study-text { order: 0; }
+      .shot { margin-bottom: 64px; }
+      .shot:has(.pin + .pin) { margin-bottom: 100px; }
+      .pin span { font-size: 12px; }
+      .brackets span { font-size: 12px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -330,77 +356,125 @@
     <li><img src="assets/logos/marlabs.png" alt="Marlabs"></li>
   </ul>
 
-  <section class="work" id="work" aria-labelledby="work-title">
-    <div class="work-head reveal">
-      <div>
-        <p class="eyebrow"><b>(04)</b>&nbsp; Selected case studies</p>
-        <h2 class="work-title" id="work-title">Complicated software,<br><em>made obvious.</em></h2>
-      </div>
-      <p class="work-note">Enterprise tools, operator consoles and one grocery aisle. Each opens as an interactive Figma case study.</p>
-    </div>
+  <section class="sheet" id="work" aria-labelledby="work-title">
+    <header class="sheet-head reveal">
+      <h2 class="sheet-title" id="work-title">Case Studies</h2>
+      <p class="sheet-sub">SaaS &amp; Product Design</p>
+      <ol class="index" aria-label="Jump to a case study">
+        <li><small>01</small><a href="#incentive-fee" style="--c:#3D8BFD">Global Incentive Fee</a><span>LaSalle · JLL<br>Fund awards</span></li>
+        <li><small>02</small><a href="#k8-resources" style="--c:#124191">K8 Resources</a><span>Nokia<br>Cloud technologies</span></li>
+        <li><small>03</small><a href="#master-fee" style="--c:#8A4DF5">Master Fee Template</a><span>Excel Edge<br>School management</span></li>
+        <li><small>04</small><a href="#smart-food" style="--c:#F28C0F">Smart Food</a><span>Product concept<br>Food retail</span></li>
+      </ol>
+    </header>
 
-    <ol class="cases" id="cases">
-      <li class="reveal">
-        <a class="case" href="https://www.figma.com/proto/BqtJK7eRdOptyFGzfkC5Pi/LaSalle's-Global-Incentive-Fee-Awards?node-id=1-2&amp;t=FmVHeYi8r2axEgto-0&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/incentive-fee.jpg">
-          <span class="case-thumb"><img src="assets/work/incentive-fee.jpg" alt="Global Incentive Fee Awards dashboard on a laptop" loading="lazy" width="1600" height="1085"></span>
-          <span class="case-num">01</span>
-          <span class="case-body">
-            <span class="case-name">Global Incentive Fee</span>
-            <span class="case-line">Allocating and approving incentive awards across funds, countries and award types, on one screen.</span>
-          </span>
-          <span class="case-meta"><span>LaSalle · JLL</span><span>SaaS · Web app</span></span>
-          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
-        </a>
-      </li>
-      <li class="reveal">
-        <a class="case" href="https://www.figma.com/proto/nhOVX1y1Do1PslJwK6GAfn/K8-resources---bechance?node-id=4-5&amp;t=WUQCd58DIYmqkSFc-1&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/k8-resources.jpg">
-          <span class="case-thumb"><img src="assets/work/k8-resources.jpg" alt="Nokia Cloud Operations Manager showing Kubernetes nodes" loading="lazy" width="1600" height="1085"></span>
-          <span class="case-num">02</span>
-          <span class="case-body">
-            <span class="case-name">K8 Resources</span>
-            <span class="case-line">Clusters, namespaces and role bindings for cloud operators, without dropping to the command line.</span>
-          </span>
-          <span class="case-meta"><span>Nokia</span><span>SaaS · Operator console</span></span>
-          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
-        </a>
-      </li>
-      <li class="reveal">
-        <a class="case" href="https://www.figma.com/proto/3DqieWCERJuFxGJdnibibN/Behance---Master-Fee-Template?node-id=114-6504&amp;t=RHaSL8br9CtpbQKY-1&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/master-fee.jpg">
-          <span class="case-thumb"><img src="assets/work/master-fee.jpg" alt="Excel Edge fee master template screen on a laptop" loading="lazy" width="1600" height="1085"></span>
-          <span class="case-num">03</span>
-          <span class="case-body">
-            <span class="case-name">Master Fee Template</span>
-            <span class="case-line">A school's fee structure and payment schedules, set up once and reused for every class.</span>
-          </span>
-          <span class="case-meta"><span>Excel Edge</span><span>SaaS · School ERP</span></span>
-          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
-        </a>
-      </li>
-      <li class="reveal">
-        <a class="case" href="https://www.figma.com/proto/NQb8fKU5flfeKe854x19Uv/Behance---Smart-Food-product?node-id=29-202&amp;t=IdI8MQFFGKFoBM61-1&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" data-img="assets/work/smart-food.jpg">
-          <span class="case-thumb"><img src="assets/work/smart-food.jpg" alt="Smart Food app screens comparing packaged meals" loading="lazy" width="1600" height="1085"></span>
-          <span class="case-num">04</span>
-          <span class="case-body">
-            <span class="case-name">Smart Food</span>
-            <span class="case-line">Comparing packaged meals by what they do for you and your family, not just by price.</span>
-          </span>
-          <span class="case-meta"><span>Product design</span><span>Mobile app</span></span>
-          <span class="case-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
-        </a>
-      </li>
-    </ol>
+    <div class="studies">
+      <article class="study" id="incentive-fee">
+        <div class="study-in">
+          <div class="study-text reveal">
+            <p class="eyebrow-cs">Case Study 01</p>
+            <h3>Global Incentive Fee</h3>
+            <p class="study-sub">Allocating and approving incentive awards across funds, countries and award types, on one screen.</p>
+            <dl class="facts" style="--brand:#0A66C2">
+              <div><dt>Client:</dt><dd class="brand-c">LaSalle Investment Management · JLL</dd></div>
+              <div><dt>Domain:</dt><dd>Real estate investment</dd></div>
+              <div><dt>Product:</dt><dd>SaaS web app</dd></div>
+            </dl>
+            <ul class="steps" aria-label="What the screen brings together">
+              <li style="--c:#3D63DD">Realization</li><li style="--c:#2F6FEA">Direct allocation</li><li style="--c:#8A4DF5">Global allocation</li><li style="--c:#F28C0F">Approvals</li>
+            </ul>
+            <a class="proto" href="https://www.figma.com/proto/BqtJK7eRdOptyFGzfkC5Pi/LaSalle's-Global-Incentive-Fee-Awards?node-id=1-2&amp;t=FmVHeYi8r2axEgto-0&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" aria-label="Interact with the Global Incentive Fee prototype">Interact with prototype <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <figure class="shot reveal">
+            <img src="assets/work/incentive-fee.jpg" alt="Global Incentive Fee Awards dashboard on a laptop" loading="lazy" width="1600" height="1085">
+            <span class="pin left" style="--x:62.7%;--y:59.6%" aria-hidden="true"><span>Approve right from the list</span></span>
+          </figure>
+        </div>
+      </article>
+
+      <article class="study" id="k8-resources">
+        <div class="study-in">
+          <div class="study-text reveal">
+            <p class="eyebrow-cs">Case Study 02</p>
+            <h3>K8 Resources</h3>
+            <p class="study-sub">Visualise the resources created as part of the cluster.</p>
+            <dl class="facts" style="--brand:#124191">
+              <div><dt>Client:</dt><dd class="brand-c">Nokia</dd></div>
+              <div><dt>Domain:</dt><dd>Cloud Technologies</dd></div>
+              <div><dt>Team:</dt><dd>Product Lead Manager, Product Manager, UX Designer (Me)</dd></div>
+            </dl>
+            <p class="challenge">To design an easy way for users to navigate through and find resources.</p>
+            <ul class="steps" aria-label="Process">
+              <li style="--c:#1D3E8F">Stakeholder interviews</li><li style="--c:#1D3E8F">Concept development</li><li style="--c:#1D3E8F">Design</li>
+            </ul>
+            <a class="proto" href="https://www.figma.com/proto/nhOVX1y1Do1PslJwK6GAfn/K8-resources---bechance?node-id=4-5&amp;t=WUQCd58DIYmqkSFc-1&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" aria-label="Interact with the K8 Resources prototype">Interact with prototype <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <figure class="shot reveal">
+            <img src="assets/work/k8-resources.jpg" alt="Nokia Cloud Operations Manager showing Kubernetes nodes" loading="lazy" width="1600" height="1085">
+            <span class="pin" style="--x:29%;--y:27%;--drop:90px" aria-hidden="true"><span>Level 1 — resource groups</span></span>
+            <span class="pin" style="--x:55%;--y:34%" aria-hidden="true"><span>Level 2 — resource types</span></span>
+          </figure>
+        </div>
+      </article>
+
+      <article class="study" id="master-fee">
+        <div class="study-in">
+          <div class="study-text reveal">
+            <p class="eyebrow-cs">Case Study 03</p>
+            <h3>Master Fee Template Redesign</h3>
+            <p class="study-sub">One fee structure, applied to every class that shares it.</p>
+            <dl class="facts" style="--brand:#3D63DD">
+              <div><dt>Client:</dt><dd class="brand-c">Excel Edge</dd></div>
+              <div><dt>Domain:</dt><dd>School management</dd></div>
+              <div><dt>Product:</dt><dd>SaaS Product Design</dd></div>
+            </dl>
+            <div class="score" role="group" aria-label="Steps to make the simplest fee structure">
+              <div class="old">Old Design <b>25</b></div>
+              <div class="new">New Design <b>9</b></div>
+            </div>
+            <p class="score-note">Number of steps to make the simplest of fee structures.</p>
+            <ul class="steps" aria-label="Project engagement">
+              <li style="--c:#2F80ED">Stakeholder interviews</li><li style="--c:#9B51E0">Analysis</li><li style="--c:#F2994A">Concept sketching</li><li style="--c:#1E9E46">Visual design</li><li style="--c:#E8B90C">Design</li>
+            </ul>
+            <a class="proto" href="https://www.figma.com/proto/3DqieWCERJuFxGJdnibibN/Behance---Master-Fee-Template?node-id=114-6504&amp;t=RHaSL8br9CtpbQKY-1&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" aria-label="Interact with the Master Fee Template prototype">Interact with prototype <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <figure class="shot reveal">
+            <img src="assets/work/master-fee.jpg" alt="Excel Edge fee master template screen on a laptop" loading="lazy" width="1600" height="1085">
+            <span class="brackets" aria-hidden="true"><span style="--a:26.5%;--b:45.8%" data-label="Template listing"></span><span style="--a:46.2%;--b:84.8%" data-label="Template"></span></span>
+          </figure>
+        </div>
+      </article>
+
+      <article class="study" id="smart-food">
+        <div class="study-in">
+          <div class="study-text reveal">
+            <p class="eyebrow-cs">Case Study 04</p>
+            <h3>Smart-Food App</h3>
+            <p class="study-sub">Helps users make better choices while buying food products.</p>
+            <dl class="facts" style="--brand:#E07B00">
+              <div><dt>Brief:</dt><dd>A feature for users with health and budget motivations</dd></div>
+              <div><dt>Product:</dt><dd class="brand-c">Mobile app</dd></div>
+            </dl>
+            <p class="q">Product Fit.<br><span class="hl">Does the product fit user needs?</span></p>
+            <ul class="steps" aria-label="Design process">
+              <li style="--c:#F28C0F">Research</li><li style="--c:#F28C0F">Define</li><li style="--c:#F28C0F">Ideate</li><li style="--c:#F28C0F">Design</li>
+            </ul>
+            <a class="proto" href="https://www.figma.com/proto/NQb8fKU5flfeKe854x19Uv/Behance---Smart-Food-product?node-id=29-202&amp;t=IdI8MQFFGKFoBM61-1&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener" aria-label="Interact with the Smart Food prototype">Interact with prototype <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <figure class="shot reveal">
+            <img src="assets/work/smart-food.jpg" alt="Smart Food app screens comparing packaged meals" loading="lazy" width="1600" height="1085">
+            <span class="pin" style="--x:18.3%;--y:71%" aria-hidden="true"><span>Fit for you and your family</span></span>
+            <span class="pin left" style="--x:81.5%;--y:36%;--drop:90px" aria-hidden="true"><span>Benefits, side by side</span></span>
+          </figure>
+        </div>
+      </article>
+    </div>
   </section>
 
-  <div class="preview" id="preview" aria-hidden="true"></div>
-
   <footer class="outro">
-    <p class="outro-line reveal">Got something<br><em>complicated?</em></p>
-    <p class="outro-cta reveal">
-      <span>Let's make it obvious, on</span>
-      <a class="pill" href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">Linkedin</a>
-      <a class="handle" href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">@iamamaanbaig</a>
-    </p>
-    <div class="fine"><span>© Amaan Baig</span><a class="handle" href="#top">Back to top ↑</a></div>
+    <p class="outro-ask reveal">Have something complicated? Let’s make it obvious, on<a href="https://www.linkedin.com/in/iamamaanbaig/" target="_blank" rel="noopener">Linkedin</a></p>
+    <p class="thanks reveal">Thank y<i role="img" aria-label="o">😊</i>u</p>
+    <p class="fine">All rights reserved @iamamaanbaig · <a href="#top">Back to top ↑</a></p>
   </footer>
 
   <script>
@@ -444,7 +518,7 @@
     })();
 
     (function () {
-      /* Scroll reveal for the work list and footer */
+      /* Scroll reveal for the case studies and footer */
       var items = document.querySelectorAll('.reveal');
       if ('IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (es) {
@@ -452,33 +526,6 @@
         }, { rootMargin: '0px 0px -8% 0px' });
         items.forEach(function (el) { io.observe(el); });
       } else items.forEach(function (el) { el.classList.add('in'); });
-
-      /* Cursor preview: one pill, images cross-fade as you move between cases */
-      var preview = document.getElementById('preview');
-      if (!window.matchMedia('(hover: hover) and (min-width: 761px)').matches) return;
-      var imgs = {}, x = innerWidth / 2, y = innerHeight / 2, cx = x, cy = y, raf;
-      document.querySelectorAll('.case').forEach(function (a) {
-        var src = a.dataset.img, img = new Image();
-        img.src = src; img.alt = ''; preview.appendChild(img); imgs[src] = img;
-        a.addEventListener('mouseenter', function () {
-          for (var k in imgs) imgs[k].classList.toggle('on', k === src);
-          preview.classList.add('on');
-        });
-      });
-      var list = document.getElementById('cases');
-      list.addEventListener('mouseleave', function () { preview.classList.remove('on'); });
-      addEventListener('mousemove', function (e) {
-        x = e.clientX; y = e.clientY;
-        if (!raf) raf = requestAnimationFrame(tick);
-      });
-      function tick() {
-        var dx = x - cx;
-        cx += dx * .14; cy += (y - cy) * .14;   // trail behind the cursor
-        preview.style.setProperty('--x', cx.toFixed(1) + 'px');
-        preview.style.setProperty('--y', cy.toFixed(1) + 'px');
-        preview.style.setProperty('--r', Math.max(-8, Math.min(8, dx * .04)).toFixed(2) + 'deg');   // lean into the motion
-        raf = Math.abs(dx) + Math.abs(y - cy) > .5 ? requestAnimationFrame(tick) : 0;
-      }
     })();
   </script>
 </body>
