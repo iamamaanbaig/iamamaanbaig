@@ -31,7 +31,8 @@
   <p class="hint">Drag to rotate · scroll to zoom</p>
   <canvas id="scene" aria-label="Hand-drawn stroke rendered as a 3D tube"></canvas>
   <div class="ui" role="group" aria-label="Material">
-    <button data-mat="glass" aria-pressed="true">Green glass</button>
+    <button data-mat="clear" aria-pressed="true">Clear glass</button>
+    <button data-mat="glass" aria-pressed="false">Green glass</button>
     <button data-mat="chrome" aria-pressed="false">Chrome</button>
     <button data-mat="neon" aria-pressed="false">Neon</button>
   </div>
@@ -49,7 +50,7 @@
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-    var RADIUS = 9;   // tube radius, in SVG units (the strokes are drawn at 2px)
+    var RADIUS = 14;  // tube radius, in SVG units (the strokes are drawn at 2px)
 
     var canvas = document.getElementById('scene');
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -75,7 +76,28 @@
     controls.autoRotate = !still;
     controls.autoRotateSpeed = 1.2;
 
+    // Soft glow that follows the camera, so the clear glass has something to refract
+    var glow = document.createElement('canvas');
+    glow.width = glow.height = 512;
+    var gx = glow.getContext('2d');
+    gx.fillStyle = '#000'; gx.fillRect(0, 0, 512, 512);   // opaque, so the glass refraction pass can see it
+    [[256, 256, 250, 'rgba(166, 243, 106, .55)'], [170, 180, 120, 'rgba(244, 244, 240, .35)'], [360, 340, 140, 'rgba(10, 102, 194, .35)']].forEach(function (b) {
+      var g = gx.createRadialGradient(b[0], b[1], 0, b[0], b[1], b[2]);
+      g.addColorStop(0, b[3]); g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      gx.fillStyle = g; gx.fillRect(0, 0, 512, 512);
+    });
+    var backdrop = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(glow) }));
+    backdrop.material.map.colorSpace = THREE.SRGBColorSpace;
+    backdrop.position.z = -5;
+    camera.add(backdrop);
+    scene.add(camera);
+
     var materials = {
+      clear: new THREE.MeshPhysicalMaterial({
+        color: 0xffffff, transmission: 1, thickness: 0.15, ior: 1.5,
+        roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0.02, iridescence: 0.2, envMapIntensity: 2.5,
+        attenuationColor: 0xE8FFD8, attenuationDistance: 0.5
+      }),
       glass: new THREE.MeshPhysicalMaterial({
         color: 0x7EE04A, emissive: 0x2C8A12, emissiveIntensity: 0.5,
         roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.04, iridescence: 0.35
@@ -105,7 +127,7 @@
           });
         });
       });
-      meshes.forEach(function (g) { group.add(new THREE.Mesh(g, materials.glass)); });
+      meshes.forEach(function (g) { group.add(new THREE.Mesh(g, materials.clear)); });
 
       // centre the drawing and fit it into a 2.4-unit box
       var box = new THREE.Box3().setFromObject(group);
