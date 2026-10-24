@@ -49,8 +49,13 @@
     import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
     var RADIUS = 14;  // tube radius, in SVG units (the strokes are drawn at 2px)
+    var CORE = 2;      // radius of the glowing blue filament inside the clear glass
 
     var canvas = document.getElementById('scene');
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -94,8 +99,8 @@
 
     var materials = {
       clear: new THREE.MeshPhysicalMaterial({
-        color: 0xffffff, transmission: 1, thickness: 0.15, ior: 1.5,
-        roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0.02, iridescence: 0.2, envMapIntensity: 2.5,
+        color: 0xffffff, transmission: 1, thickness: 0.08, ior: 1.25,
+        roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0.02, iridescence: 0.2, envMapIntensity: 1.5,
         attenuationColor: 0xE8FFD8, attenuationDistance: 0.5
       }),
       glass: new THREE.MeshPhysicalMaterial({
@@ -106,12 +111,19 @@
       neon: new THREE.MeshStandardMaterial({ color: 0xA6F36A, emissive: 0xA6F36A, emissiveIntensity: 1.4, roughness: 0.4 })
     };
 
-    var group = new THREE.Group();
-    scene.add(group);
+    // Pushed past 1.0 and not tone-mapped, so only the filament crosses the bloom threshold
+    var coreMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.02, 0.15, 1).multiplyScalar(6), toneMapped: false });
 
+    var group = new THREE.Group();
+    var cores = new THREE.Group();
+    scene.add(group);
+    group.add(cores);
+
+    var shells = [];
     new SVGLoader().load('assets/stroke.svg', function (data) {
       var meshes = [];
       var cap = new THREE.SphereGeometry(RADIUS, 24, 16);
+      var coreCap = new THREE.SphereGeometry(CORE, 12, 8);
       data.paths.forEach(function (path) {
         path.subPaths.forEach(function (sub) {
           var len = sub.getLength();
@@ -120,14 +132,20 @@
           if (len > 1) {
             var curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
             meshes.push(new THREE.TubeGeometry(curve, Math.max(8, pts.length * 2), RADIUS, 20, false));
+            cores.add(new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(8, pts.length * 2), CORE, 8, false), coreMaterial));
           }
           // round caps, like stroke-linecap="round"
           [pts[0], pts[pts.length - 1]].forEach(function (p) {
             meshes.push(cap.clone().translate(p.x, p.y, p.z));
+            cores.add(new THREE.Mesh(coreCap.clone().translate(p.x, p.y, p.z), coreMaterial));
           });
         });
       });
-      meshes.forEach(function (g) { group.add(new THREE.Mesh(g, materials.clear)); });
+      meshes.forEach(function (g) {
+        var shell = new THREE.Mesh(g, materials.clear);
+        shells.push(shell);
+        group.add(shell);
+      });
 
       // centre the drawing and fit it into a 2.4-unit box
       var box = new THREE.Box3().setFromObject(group);
@@ -140,19 +158,28 @@
     document.querySelectorAll('.ui button').forEach(function (btn) {
       btn.addEventListener('click', function () {
         document.querySelectorAll('.ui button').forEach(function (b) { b.setAttribute('aria-pressed', b === btn); });
-        group.children.forEach(function (m) { m.material = materials[btn.dataset.mat]; });
+        shells.forEach(function (m) { m.material = materials[btn.dataset.mat]; });
+        // the glowing filament (and its bloom) only belongs to the clear glass
+        cores.visible = bloom.enabled = btn.dataset.mat === 'clear';
       });
     });
+
+    var composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    var bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.8, 0.4, 1);   // strength, radius, threshold
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
 
     function resize() {
       var w = canvas.clientWidth, h = canvas.clientHeight;
       renderer.setSize(w, h, false);
+      composer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     }
     window.addEventListener('resize', resize);
     resize();
-    renderer.setAnimationLoop(function () { controls.update(); renderer.render(scene, camera); });
+    renderer.setAnimationLoop(function () { controls.update(); composer.render(); });
   </script>
 </body>
 </html>
