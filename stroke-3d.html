@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stroke in 3D — Amaan Baig</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #000; --text: #F4F4F0; --muted: #8B8B85; --green: #A6F36A; --sans: "Plus Jakarta Sans", system-ui, sans-serif; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); }
+    canvas { display: block; width: 100%; height: 100svh; cursor: grab; touch-action: none; }
+    canvas:active { cursor: grabbing; }
+    .ui {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+      display: flex; gap: 8px; padding: 6px; border-radius: 999px;
+      background: rgba(255, 255, 255, .06); backdrop-filter: blur(10px);
+    }
+    .ui button {
+      font: 500 14px var(--sans); color: var(--muted); background: none;
+      border: 0; padding: 8px 16px; border-radius: 999px; cursor: pointer;
+    }
+    .ui button[aria-pressed="true"] { background: var(--green); color: var(--bg); }
+    .ui button:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+    .hint { position: fixed; top: 20px; left: 0; right: 0; text-align: center; font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <p class="hint">Drag to rotate · scroll to zoom</p>
+  <canvas id="scene" aria-label="Hand-drawn stroke rendered as a 3D tube"></canvas>
+  <div class="ui" role="group" aria-label="Material">
+    <button data-mat="glass" aria-pressed="true">Green glass</button>
+    <button data-mat="chrome" aria-pressed="false">Chrome</button>
+    <button data-mat="neon" aria-pressed="false">Neon</button>
+  </div>
+
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+  <script type="module">
+    /* Turns every stroke in assets/stroke.svg into a round tube. Swap that file to change the drawing. */
+    import * as THREE from 'three';
+    import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    var RADIUS = 9;   // tube radius, in SVG units (the strokes are drawn at 2px)
+
+    var canvas = document.getElementById('scene');
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+    var key = new THREE.DirectionalLight(0xffffff, 2);
+    key.position.set(-2, 3, 4);
+    scene.add(key);
+
+    var camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    camera.position.set(0, 0, 4.2);
+    var controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.enablePan = false;
+    controls.minDistance = 2;
+    controls.maxDistance = 9;
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    controls.autoRotate = !still;
+    controls.autoRotateSpeed = 1.2;
+
+    var materials = {
+      glass: new THREE.MeshPhysicalMaterial({
+        color: 0x7EE04A, emissive: 0x2C8A12, emissiveIntensity: 0.5,
+        roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.04, iridescence: 0.35
+      }),
+      chrome: new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.12 }),
+      neon: new THREE.MeshStandardMaterial({ color: 0xA6F36A, emissive: 0xA6F36A, emissiveIntensity: 1.4, roughness: 0.4 })
+    };
+
+    var group = new THREE.Group();
+    scene.add(group);
+
+    new SVGLoader().load('assets/stroke.svg', function (data) {
+      var meshes = [];
+      var cap = new THREE.SphereGeometry(RADIUS, 24, 16);
+      data.paths.forEach(function (path) {
+        path.subPaths.forEach(function (sub) {
+          var len = sub.getLength();
+          var pts = sub.getSpacedPoints(Math.max(2, Math.round(len / 6)))
+            .map(function (p) { return new THREE.Vector3(p.x, -p.y, 0); });   // SVG y points down
+          if (len > 1) {
+            var curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
+            meshes.push(new THREE.TubeGeometry(curve, Math.max(8, pts.length * 2), RADIUS, 20, false));
+          }
+          // round caps, like stroke-linecap="round"
+          [pts[0], pts[pts.length - 1]].forEach(function (p) {
+            meshes.push(cap.clone().translate(p.x, p.y, p.z));
+          });
+        });
+      });
+      meshes.forEach(function (g) { group.add(new THREE.Mesh(g, materials.glass)); });
+
+      // centre the drawing and fit it into a 2.4-unit box
+      var box = new THREE.Box3().setFromObject(group);
+      var size = box.getSize(new THREE.Vector3());
+      var s = 2.4 / Math.max(size.x, size.y);
+      group.scale.setScalar(s);
+      group.position.copy(box.getCenter(new THREE.Vector3()).multiplyScalar(-s));
+    });
+
+    document.querySelectorAll('.ui button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.ui button').forEach(function (b) { b.setAttribute('aria-pressed', b === btn); });
+        group.children.forEach(function (m) { m.material = materials[btn.dataset.mat]; });
+      });
+    });
+
+    function resize() {
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    renderer.setAnimationLoop(function () { controls.update(); renderer.render(scene, camera); });
+  </script>
+</body>
+</html>
