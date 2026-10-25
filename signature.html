@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Baig — Neon Signature</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #121316; overflow: hidden; }
+  canvas { display: block; touch-action: none; }
+  #replay {
+    position: fixed; right: 16px; bottom: 16px;
+    font: 500 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #9fc2ff; background: rgba(74, 125, 255, 0.08);
+    border: 1px solid rgba(159, 194, 255, 0.3); border-radius: 999px;
+    padding: 9px 16px; cursor: pointer; letter-spacing: 0.02em;
+  }
+  #replay:hover { background: rgba(74, 125, 255, 0.18); }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<button id="replay" type="button">Replay</button>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ---------- Config ----------
+const TUBE_RADIUS = 0.04;
+const CORE_RADIUS = 0.015;
+const GLASS_EMISSIVE = 0x4a7dff;
+const CORE_COLOR = 0x9fc2ff;
+const BG = 0x121316;
+const HDRI_URL = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/equirectangular/royal_esplanade_1k.hdr';
+
+const params = new URLSearchParams(location.search);
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const playIntro = params.get('intro') !== '0' && !reducedMotion;
+
+// ---------- Renderer / scene ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(BG);
+
+const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.enablePan = false;
+controls.minDistance = 3;
+controls.maxDistance = 20;
+
+// Environment: HDRI for chrome-like reflections, with a procedural studio fallback.
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+new RGBELoader().load(HDRI_URL, (hdr) => {
+  scene.environment = pmrem.fromEquirectangular(hdr).texture;
+  hdr.dispose();
+}, undefined, () => { /* keep RoomEnvironment fallback */ });
+
+// A couple of blue rim lights so the glass picks up colored highlights.
+const key = new THREE.PointLight(0x6f9bff, 6, 12);
+key.position.set(-2, 2, 3);
+scene.add(key);
+const rim = new THREE.PointLight(0xbfd4ff, 4, 12);
+rim.position.set(3, -1.5, 2);
+scene.add(rim);
+
+// ---------- Signature strokes ----------
+// Points are traced in a 1570×1300 pixel sketch space and mapped into world units.
+const S = 300, CX = 785, CY = 655;
+function toWorld(pts, zBase, zAmp = 0.06, zFreq = 1.3) {
+  return pts.map(([x, y], i) =>
+    new THREE.Vector3((x - CX) / S, -(y - CY) / S, zBase + zAmp * Math.sin(i * zFreq)));
+}
+
+const strokes = [
+  { // "A": long left leg from bottom-left up to a sharp apex, right leg down
+    z: 0.0,
+    pts: [[165,1175],[215,1020],[270,850],[330,660],[395,470],[455,300],[495,215],[520,190],
+          [540,205],[553,260],[562,380],[570,540],[572,700],[568,820],[565,895]],
+  },
+  { // small "n"-like wave that runs into the "B"
+    z: 0.07,
+    pts: [[455,775],[505,735],[548,688],[585,630],[620,590],[655,572],[688,590],[708,640],
+          [728,655],[752,610],[790,566],[845,548],[915,556],[1000,575]],
+  },
+  { // "B" (hooked start, angular top) flowing into "aig" and the looping "g"
+    z: -0.05,
+    pts: [[722,300],[704,288],[708,268],[760,240],[860,190],[960,140],[1060,100],[1118,86],
+          [1145,105],[1135,170],[1108,250],[1092,330],[1104,395],[1160,425],[1178,460],
+          [1150,505],[1080,570],[995,640],[925,690],[898,722],[925,728],[990,695],
+          [1045,650],[1062,672],[1085,698],[1140,668],[1188,612],[1212,640],[1228,688],
+          [1268,700],[1318,650],[1368,590],[1415,535],[1458,490],[1462,520],[1440,610],
+          [1400,730],[1345,860],[1295,960],[1258,1045],[1248,1100],[1268,1118],[1300,1080],
+          [1335,990],[1368,880],[1392,790]],
+  },
+  { // dot over the "i"
+    z: 0.04, zAmp: 0,
+    pts: [[1208,505],[1218,493],[1228,483]],
+  },
+  { // long, slightly rising strike-through line
+    z: 0.16, zAmp: 0.03, zFreq: 0.9,
+    pts: [[85,862],[400,805],[700,751],[1000,697],[1250,650],[1488,605]],
+  },
+  { // vertical line just right of the "A"
+    z: -0.14, zAmp: 0.02, zFreq: 0.9,
+    pts: [[872,302],[870,500],[867,750],[864,1000],[861,1222]],
+  },
+];
+
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: 0x7ea4ff,
+  metalness: 0,
+  roughness: 0.05,
+  transmission: 0.9,
+  thickness: 0.12,
+  attenuationColor: 0x3f6fff,
+  attenuationDistance: 0.2,
+  ior: 1.5,
+  clearcoat: 1,
+  clearcoatRoughness: 0.03,
+  iridescence: 0.35,
+  iridescenceIOR: 1.3,
+  iridescenceThicknessRange: [100, 420],
+  emissive: GLASS_EMISSIVE,
+  emissiveIntensity: 0.3,
+  envMapIntensity: 1.1,
+  specularIntensity: 1,
+});
+
+// Core glows above 1.0 so the bloom pass picks it up.
+const coreMat = new THREE.MeshBasicMaterial({ toneMapped: false });
+coreMat.color.set(CORE_COLOR).multiplyScalar(1.5);
+
+const capGlassGeo = new THREE.SphereGeometry(TUBE_RADIUS, 32, 16);
+const capCoreGeo = new THREE.SphereGeometry(CORE_RADIUS, 16, 8);
+
+const signature = new THREE.Group();
+scene.add(signature);
+
+const RADIAL = 24;
+const built = strokes.map((s) => {
+  const curve = new THREE.CatmullRomCurve3(toWorld(s.pts, s.z, s.zAmp ?? 0.06, s.zFreq ?? 1.3), false, 'centripetal');
+  const length = curve.getLength();
+  const tubular = Math.max(16, Math.ceil(length * 160));
+
+  const glass = new THREE.Mesh(new THREE.TubeGeometry(curve, tubular, TUBE_RADIUS, RADIAL, false), glassMat);
+  const core = new THREE.Mesh(new THREE.TubeGeometry(curve, tubular, CORE_RADIUS, 12, false), coreMat);
+
+  // Rounded end caps (glass + core) at both ends.
+  const mkCap = () => {
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(capGlassGeo, glassMat));
+    g.add(new THREE.Mesh(capCoreGeo, coreMat));
+    return g;
+  };
+  const startCap = mkCap(), endCap = mkCap();
+  startCap.position.copy(curve.getPointAt(0));
+  endCap.position.copy(curve.getPointAt(1));
+
+  signature.add(glass, core, startCap, endCap);
+  return { curve, length, tubular, glass, core, startCap, endCap };
+});
+
+function setProgress(b, p) {
+  p = THREE.MathUtils.clamp(p, 0, 1);
+  const segs = Math.floor(p * b.tubular);
+  b.glass.geometry.setDrawRange(0, segs * RADIAL * 6);
+  b.core.geometry.setDrawRange(0, segs * 12 * 6);
+  b.startCap.visible = p > 0;
+  b.endCap.visible = p > 0;
+  b.endCap.position.copy(b.curve.getPointAt(segs / b.tubular));
+}
+
+// ---------- Intro: draw each stroke like a pen ----------
+const PEN_SPEED = 4.2; // world units per second
+const GAP = 0.12;      // pause between strokes (s)
+let t0 = 0;
+const schedule = [];
+{
+  let start = 0;
+  for (const b of built) {
+    const dur = b.length / PEN_SPEED;
+    schedule.push({ b, start, dur });
+    start += dur + GAP;
+  }
+}
+const introTotal = schedule.at(-1).start + schedule.at(-1).dur;
+let introActive = false;
+
+function startIntro() {
+  introActive = true;
+  t0 = performance.now() / 1000;
+  built.forEach((b) => setProgress(b, 0));
+}
+function finishIntro() {
+  introActive = false;
+  built.forEach((b) => setProgress(b, 1));
+}
+const easeInOut = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+
+if (playIntro) startIntro(); else finishIntro();
+document.getElementById('replay').addEventListener('click', startIntro);
+
+// ---------- Post-processing ----------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.6, 0.55);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ---------- Responsive framing ----------
+function frame() {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  // Fit the ~4.9 × 3.6 world-unit signature with some margin.
+  const halfH = 2.1, halfW = 2.7;
+  const vFov = THREE.MathUtils.degToRad(camera.fov / 2);
+  const dist = Math.max(halfH / Math.tan(vFov), halfW / (Math.tan(vFov) * camera.aspect));
+  camera.position.set(0, 0, dist);
+  controls.target.set(0, 0, 0);
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(w, h);
+  composer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  composer.setSize(w, h);
+  bloom.resolution.set(w, h);
+}
+frame();
+window.addEventListener('resize', frame);
+
+// ---------- Loop ----------
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const t = clock.getElapsedTime();
+
+  if (introActive) {
+    const e = performance.now() / 1000 - t0;
+    for (const { b, start, dur } of schedule) setProgress(b, easeInOut(THREE.MathUtils.clamp((e - start) / dur, 0, 1)));
+    if (e >= introTotal) finishIntro();
+  }
+
+  if (!reducedMotion) {
+    signature.rotation.y = Math.sin(t * 0.35) * 0.22;
+    signature.rotation.x = Math.sin(t * 0.27 + 1.2) * 0.07;
+    signature.position.y = Math.sin(t * 0.5) * 0.04;
+  }
+
+  controls.update();
+  composer.render();
+});
+</script>
+</body>
+</html>
