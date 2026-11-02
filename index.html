@@ -12,7 +12,14 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+  <!-- Loaded without blocking first paint; text shows in the fallback font until the web fonts arrive -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&family=Playfair+Display:ital@0;1&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&family=Playfair+Display:ital@0;1&display=swap"></noscript>
+  <!-- Carousel images are CSS backgrounds, so the browser would only find them after the script runs -->
+  <link rel="preload" as="image" href="assets/cards/claude.jpg">
+  <link rel="preload" as="image" href="assets/cards/chatgpt.jpg">
+  <link rel="preload" as="image" href="assets/cards/notebooklm.jpg">
+  <link rel="preload" as="image" href="assets/cards/figma.jpg">
 
   <style>
     :root {
@@ -118,21 +125,29 @@
       position: absolute; inset: 0;
       background:
         linear-gradient(rgba(0, 0, 0, var(--depth, 0)), rgba(0, 0, 0, var(--depth, 0))),
-        linear-gradient(rgba(0, 0, 0, var(--shade, 0)), rgba(0, 0, 0, var(--shade, 0))),
+        linear-gradient(90deg, rgba(0, 0, 0, .22), transparent 50%, rgba(0, 0, 0, .22)) var(--bx) 0 / var(--card) 100% no-repeat,
         var(--img) var(--bx) 0 / var(--card) 100% no-repeat,
         var(--fill);
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      animation: appear .9s var(--ease) .22s both;
+    }
+    /* Only the two outer slices on each side hold a rounded corner, so only they need the (costly) mask */
+    .slice.edge i {
       -webkit-mask: var(--corner) var(--bx) 0 / var(--card) 100% no-repeat;
               mask: var(--corner) var(--bx) 0 / var(--card) 100% no-repeat;
-      backface-visibility: hidden; -webkit-backface-visibility: hidden;
     }
-    /* Inner side of a card: only ever seen on the far side of the ring, so it is always dimmed and blurred */
-    .slice i + i { transform: rotateY(180deg); --bx: var(--bx-back); --depth: .6; filter: blur(2px); }
+    /* Inner side of a card: only ever seen on the far side of the ring, so it is always dimmed.
+       (No blur filter: blurring 64 moving 3D layers dropped the animation to a few frames per second.) */
+    .slice i + i { transform: rotateY(180deg); --bx: var(--bx-back); --depth: .7; }
 
     .spark {
       width: 44%; height: auto; overflow: visible;
       filter: drop-shadow(0 .6vw 1.6vw rgba(120, 230, 70, .4));
-      animation: float 5s ease-in-out infinite;
+      animation: appear .9s var(--ease) .22s both, float 5s ease-in-out infinite;
     }
+    /* The carousel fades in on its leaf elements: opacity on any 3D ancestor would flatten the ring
+       (spark painted over the front cards) until the fade finished, then snap back into 3D */
+    @keyframes appear { from { opacity: 0; } }
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(0deg); }
       50%      { transform: translateY(-.4vw) rotate(8deg); }
@@ -182,8 +197,8 @@
   <main class="hero">
     <p class="intro rise" style="--d:0">User Experience Designer. <em>Making complicated software feel obvious.</em></p>
 
-    <h1 class="display speed rise" style="--d:1">
-      <span>AI for speed</span><span class="dash" aria-hidden="true"></span>
+    <h1 class="display speed">
+      <span class="rise" style="--d:1">AI for speed</span><span class="dash rise" style="--d:1" aria-hidden="true"></span>
       <span class="orbit" id="orbit" aria-hidden="true">
         <span class="tilt"><span class="ring" id="ring"></span></span> <!-- cards are built by the script below -->
           <svg class="spark" viewBox="0 0 100 100">
@@ -276,10 +291,10 @@
           html += '<span class="tile" style="--img:var(--img-' + k + ');--fill:var(--fill-' + k + ');--corner:' + CORNER.replace(/"/g, '&quot;') + ';transform:rotateY(' + c * GAP + 'deg)">';
           for (var n = 0; n < SLICES; n++) {
             var t = (n - (SLICES - 1) / 2) * d;   // slice offset from the card's centre
-            var shade = (0.22 * Math.abs(t) / (arc / 2)).toFixed(3);
-            html += '<span class="slice" style="width:' + w.toFixed(2) + 'px;margin-left:' + (-w / 2).toFixed(2) + 'px;' +
+            var edge = n < 2 || n > SLICES - 3 ? ' edge' : '';   // slices that hold a rounded corner
+            html += '<span class="slice' + edge + '" style="width:' + w.toFixed(2) + 'px;margin-left:' + (-w / 2).toFixed(2) + 'px;' +
               'transform:rotateY(' + (t * 180 / Math.PI).toFixed(3) + 'deg) translateZ(' + r.toFixed(2) + 'px);' +
-              '--bx:' + (-n * card / SLICES).toFixed(2) + 'px;--bx-back:' + (-(SLICES - 1 - n) * card / SLICES).toFixed(2) + 'px;--shade:' + shade + '">' +
+              '--bx:' + (-n * card / SLICES).toFixed(2) + 'px;--bx-back:' + (-(SLICES - 1 - n) * card / SLICES).toFixed(2) + 'px;">' +
               '<i></i><i></i></span>';
           }
           html += '</span>';
